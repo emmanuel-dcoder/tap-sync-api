@@ -27,6 +27,7 @@ import { MailService } from 'src/core/mail/email';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { accountType } from './enum/user.enum';
 @Injectable()
 export class UserService {
   constructor(
@@ -98,7 +99,17 @@ export class UserService {
 
       const token = this.jwtService.sign(payload);
 
-      return { user: { _id: user._id, email: user.email, token } };
+      return {
+        user: {
+          _id: user._id,
+          email: user.email,
+          token,
+          name: user.name,
+          username: user.username,
+          phone: user.phone,
+          accountType: user.accountType,
+        },
+      };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
