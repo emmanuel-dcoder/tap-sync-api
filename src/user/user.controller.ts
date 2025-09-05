@@ -79,10 +79,10 @@ export class UserController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @Get('logged-in')
-  @ApiOperation({ summary: 'Get logged in individuval or company' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get logged in individual or company' })
   @ApiResponse({ status: 200, description: 'Retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unable to perform task' })
   async loggedInUser(@Req() req: any) {

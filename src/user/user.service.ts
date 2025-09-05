@@ -89,12 +89,6 @@ export class UserService {
         throw new BadRequestException('Invalid email or password');
       }
 
-      // if (!user.isVerified) {
-      //   throw new BadRequestException(
-      //     'Unverified user, kindly verify your account',
-      //   );
-      // }
-
       const payload = { _id: user._id, email: user.email, sub: user._id };
 
       const token = this.jwtService.sign(payload);
@@ -120,7 +114,6 @@ export class UserService {
 
   async loggedInUser(userId: string) {
     try {
-      console.log('userid', userId);
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new BadRequestException('Invalid user ID format');
       }
@@ -133,7 +126,14 @@ export class UserService {
 
       delete user.password;
 
-      return { _id: user._id };
+      return {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        username: user.username,
+        profileImage: user.profileImage,
+        phone: user.phone,
+      };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

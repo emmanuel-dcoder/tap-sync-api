@@ -13,6 +13,7 @@ import {
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { envConfig } from 'src/core/config/env.config';
+import { JwtStrategy } from 'src/core/guard/jwt.strategy';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -26,6 +27,12 @@ import { envConfig } from 'src/core/config/env.config';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, MailService, CloudinaryService, NotificationService],
+  providers: [
+    UserService,
+    MailService,
+    CloudinaryService,
+    NotificationService,
+    JwtStrategy,
+  ],
 })
 export class UserModule {}
