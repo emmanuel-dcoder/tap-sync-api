@@ -192,6 +192,7 @@ export class UserService {
     try {
       const user = await this.userModel.findOne({ email: dto.email });
       if (!user) throw new BadRequestException('User not found');
+
       //generate random password
       const dummyPassword = AlphaNumeric(6);
       const hashedPassword = await hashPassword(dummyPassword);
