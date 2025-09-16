@@ -4,10 +4,42 @@ import { accountType } from '../enum/user.enum';
 
 export type UserDocument = User & Document;
 
+@Schema({ _id: false })
+export class Link {
+  @Prop()
+  website: string;
+
+  @Prop()
+  socialMedia: string;
+
+  @Prop()
+  messaging: string;
+
+  @Prop()
+  custom: string;
+}
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop({ required: false })
   name: string;
+
+  @Prop({ default: null })
+  businessName: string;
+
+  @Prop({ default: null })
+  businessEmail: string;
+
+  @Prop({ default: null })
+  businessUsername: string;
+
+  @Prop({ default: null })
+  businessPhoneNumber: string;
+
+  @Prop({ default: null })
+  title: string;
+
+  @Prop({ default: null })
+  bio: string;
 
   @Prop({ required: true })
   email: string;
@@ -20,6 +52,18 @@ export class User {
 
   @Prop({ default: null })
   profileImage: string;
+
+  @Prop({ default: null })
+  bannerImage: string;
+
+  @Prop({ default: null })
+  backgroundColor: string;
+
+  @Prop({ default: null })
+  textColor: string;
+
+  @Prop({ type: Link })
+  link: Link;
 
   @Prop({ required: true })
   password: string;

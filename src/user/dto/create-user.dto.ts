@@ -41,7 +41,10 @@ export class VerifyOtpDto {
 }
 
 export class ForgotPasswordDto {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'opeoluwaoyedejif@gmail.com',
+    description: 'email of the user',
+  })
   @IsEmail()
   email: string;
 }
@@ -51,7 +54,7 @@ export class LoginDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'secret1' })
+  @ApiProperty({ example: '6KvpxZ' })
   @IsString()
   password: string;
 }

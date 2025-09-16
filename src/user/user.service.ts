@@ -27,7 +27,7 @@ import { MailService } from 'src/core/mail/email';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { accountType } from './enum/user.enum';
+import { CreateUserCardDto, LinkDto } from './dto/create-user-card.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -51,6 +51,66 @@ export class UserService {
       delete createUser.password;
 
       return createUser;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async updateUserCardProfile(
+    user: string,
+    updateUserCardDto: CreateUserCardDto,
+    files?: any,
+  ) {
+    try {
+      let bannerUpload: string | undefined;
+      let profileUpload: string | undefined;
+
+      if (files?.bannerImage?.[0]) {
+        bannerUpload = await this.uploadUserImage(files.bannerImage[0]);
+      }
+
+      if (files?.profileImage?.[0]) {
+        profileUpload = await this.uploadUserImage(files.profileImage[0]);
+      }
+
+      const updateData = {
+        ...updateUserCardDto,
+        ...(bannerUpload && { bannerImage: bannerUpload }),
+        ...(profileUpload && { profileImage: profileUpload }),
+      };
+
+      return await this.userModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(user) },
+        updateData,
+        { new: true, runValidators: true },
+      );
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //add links
+  async addLinks(user: string, linkDto: LinkDto) {
+    try {
+      const updateData = {
+        link: { ...linkDto },
+      };
+
+      const link = await this.userModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(user) },
+        updateData,
+        { new: true, runValidators: true },
+      );
+
+      if (!link) throw new BadRequestException('Unable to update link');
+
+      return link;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
@@ -195,6 +255,7 @@ export class UserService {
 
       //generate random password
       const dummyPassword = AlphaNumeric(6);
+      console.log('dummy password', dummyPassword);
       const hashedPassword = await hashPassword(dummyPassword);
       user.password = hashedPassword;
       await user.save();

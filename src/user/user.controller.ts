@@ -4,14 +4,12 @@ import {
   Body,
   HttpStatus,
   Put,
-  Param,
   UseInterceptors,
-  UploadedFile,
-  BadRequestException,
   Get,
   Req,
   UnauthorizedException,
   UseGuards,
+  UploadedFiles,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -31,9 +29,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { successResponse } from 'src/core/config/response';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
+import { CreateUserCardDto, LinkDto } from './dto/create-user-card.dto';
 
 @Controller('api/v1/user')
 @ApiTags('Onboarding Company or Individual')
@@ -99,47 +97,6 @@ export class UserController {
     });
   }
 
-  // @Post('verify-otp')
-  // @ApiOperation({
-  //   summary: 'Verify OTP',
-  //   description:
-  //     'Verifies the OTP sent to the individual or company email and activates the account.',
-  // })
-  // @ApiBody({ type: VerifyOtpDto })
-  // @ApiResponse({ status: 200, description: 'User verified successfully.' })
-  // @ApiResponse({ status: 400, description: 'Invalid OTP.' })
-  // async verifyOtp(@Body() dto: VerifyOtpDto) {
-  //   const data = await this.userService.verifyOtp(dto);
-  //   return successResponse({
-  //     message: 'User verified successfully.',
-  //     code: HttpStatus.OK,
-  //     status: 'success',
-  //     data,
-  //   });
-  // }
-
-  // @Post('resend-otp')
-  // @ApiOperation({
-  //   summary: 'Resend OTP',
-  //   description: 'Sends a new OTP to the user’s email for verification.',
-  // })
-  // @ApiBody({
-  //   schema: {
-  //     properties: { email: { type: 'string', example: 'user@example.com' } },
-  //   },
-  // })
-  // @ApiResponse({ status: 200, description: 'New OTP sent to email.' })
-  // @ApiResponse({ status: 400, description: 'User not found.' })
-  // async resendOtp(@Body('email') email: string) {
-  //   const data = await this.userService.resendOtp(email);
-  //   return successResponse({
-  //     message: 'New OTP sent to email.',
-  //     code: HttpStatus.OK,
-  //     status: 'success',
-  //     data,
-  //   });
-  // }
-
   @Post('forgot-password')
   @ApiOperation({
     summary: 'Forgot Password',
@@ -186,6 +143,95 @@ export class UserController {
     });
   }
 
+  /**update user card details controller */
+  @Put('card-details')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'This is to update user card details' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Johnson Ezekiel', nullable: true },
+        title: { type: 'string', example: 'Miss.', nullable: true },
+        bio: {
+          type: 'string',
+          example: 'Short biography here',
+          nullable: true,
+        },
+        textColor: { type: 'string', example: '#FFFFFF', nullable: true },
+        bannerImage: { type: 'string', format: 'binary', nullable: true },
+        profileImage: { type: 'string', format: 'binary', nullable: true },
+        // link: {
+        //   type: 'object',
+        //   properties: {
+        //     website: { type: 'string', example: 'https://example.com' },
+        //     socialMedia: {
+        //       type: 'string',
+        //       example: 'https://twitter.com/user',
+        //     },
+        //     messaging: { type: 'string', example: 'https://wa.me/1234567890' },
+        //     custom: { type: 'string', example: 'https://customlink.com' },
+        //   },
+        //   nullable: true,
+        // },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'bannerImage', maxCount: 1 },
+      { name: 'profileImage', maxCount: 1 },
+    ]),
+  )
+  @ApiResponse({ status: 200, description: 'Card details updated.' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async updateUserCardDetails(
+    @Req() req: any,
+    @Body() updateUserCardDto: CreateUserCardDto,
+    @UploadedFiles()
+    files: {
+      bannerImage?: Express.Multer.File[];
+      profileImage?: Express.Multer.File[];
+    },
+  ) {
+    const user = req.user._id;
+    const data = await this.userService.updateUserCardProfile(
+      user,
+      updateUserCardDto,
+      files,
+    );
+    return {
+      message: 'Card details updated',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
+
+  /**Add link */
+  @Put('link-details')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'This is to update user card social media link details',
+  })
+  @ApiBody({ type: LinkDto })
+  @ApiResponse({ status: 200, description: 'Link details updated.' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async addLink(@Req() req: any, @Body() linkDto: LinkDto) {
+    const user = req.user._id;
+    const data = await this.userService.addLinks(user, linkDto);
+    return {
+      message: 'Link details updated.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
+
+  //**delete account */
   @Post('delete-account')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -214,54 +260,95 @@ export class UserController {
     });
   }
 
-  @Put('edit-profile/:id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Edit user profile' })
-  @ApiBody({ type: UpdateUserDto })
-  @ApiResponse({
-    status: 200,
-    description: 'User profile updated successfully.',
-  })
-  @ApiResponse({ status: 400, description: 'Invalid data provided.' })
-  async editUserProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-    const user = req.user._id;
-    const data = await this.userService.editUserProfile(user, updateUserDto);
-    return successResponse({
-      message: 'User profile updated successfully.',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
+  // @Put('edit-profile/:id')
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiOperation({ summary: 'Edit user profile' })
+  // @ApiBody({ type: UpdateUserDto })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'User profile updated successfully.',
+  // })
+  // @ApiResponse({ status: 400, description: 'Invalid data provided.' })
+  // async editUserProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
+  //   const user = req.user._id;
+  //   const data = await this.userService.editUserProfile(user, updateUserDto);
+  //   return successResponse({
+  //     message: 'User profile updated successfully.',
+  //     code: HttpStatus.OK,
+  //     status: 'success',
+  //     data,
+  //   });
+  // }
 
-  @Put(':id/profile-picture')
-  @ApiOperation({
-    summary: 'Upload profile picture for the user, use form data (Key: file)',
-  })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: { file: { type: 'string', format: 'binary' } },
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Profile picture uploaded successfully',
-  })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadProfilePicture(
-    @Param('id') userId: string,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    if (!file) throw new BadRequestException('file or image not found');
-    await this.userService.uploadProfilePicture(userId, file);
-    return successResponse({
-      message: 'Profile picture uploaded successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-    });
-  }
+  // @Post('verify-otp')
+  // @ApiOperation({
+  //   summary: 'Verify OTP',
+  //   description:
+  //     'Verifies the OTP sent to the individual or company email and activates the account.',
+  // })
+  // @ApiBody({ type: VerifyOtpDto })
+  // @ApiResponse({ status: 200, description: 'User verified successfully.' })
+  // @ApiResponse({ status: 400, description: 'Invalid OTP.' })
+  // async verifyOtp(@Body() dto: VerifyOtpDto) {
+  //   const data = await this.userService.verifyOtp(dto);
+  //   return successResponse({
+  //     message: 'User verified successfully.',
+  //     code: HttpStatus.OK,
+  //     status: 'success',
+  //     data,
+  //   });
+  // }
+
+  // @Post('resend-otp')
+  // @ApiOperation({
+  //   summary: 'Resend OTP',
+  //   description: 'Sends a new OTP to the user’s email for verification.',
+  // })
+  // @ApiBody({
+  //   schema: {
+  //     properties: { email: { type: 'string', example: 'user@example.com' } },
+  //   },
+  // })
+  // @ApiResponse({ status: 200, description: 'New OTP sent to email.' })
+  // @ApiResponse({ status: 400, description: 'User not found.' })
+  // async resendOtp(@Body('email') email: string) {
+  //   const data = await this.userService.resendOtp(email);
+  //   return successResponse({
+  //     message: 'New OTP sent to email.',
+  //     code: HttpStatus.OK,
+  //     status: 'success',
+  //     data,
+  //   });
+  // }
+
+  // @Put(':id/profile-picture')
+  // @ApiOperation({
+  //   summary: 'Upload profile picture for the user, use form data (Key: file)',
+  // })
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: { file: { type: 'string', format: 'binary' } },
+  //   },
+  // })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Profile picture uploaded successfully',
+  // })
+  // @ApiResponse({ status: 404, description: 'User not found' })
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadProfilePicture(
+  //   @Param('id') userId: string,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ) {
+  //   if (!file) throw new BadRequestException('file or image not found');
+  //   await this.userService.uploadProfilePicture(userId, file);
+  //   return successResponse({
+  //     message: 'Profile picture uploaded successfully',
+  //     code: HttpStatus.OK,
+  //     status: 'success',
+  //   });
+  // }
 }
