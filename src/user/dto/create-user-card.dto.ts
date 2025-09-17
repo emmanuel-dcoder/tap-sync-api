@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class LinkDto {
   @ApiPropertyOptional({ example: 'https://example.com' })
@@ -43,19 +42,7 @@ export class CreateUserCardDto {
   @IsString()
   textColor: string;
 
-  // @ApiPropertyOptional({ type: LinkDto })
-  // @IsOptional()
-  // @ValidateNested()
-  // @Type(() => LinkDto)
-  // @Transform(({ value }) => {
-  //   if (typeof value === 'string') {
-  //     try {
-  //       return JSON.parse(value);
-  //     } catch {
-  //       return value; // fallback if not JSON
-  //     }
-  //   }
-  //   return value;
-  // })
-  // link?: LinkDto;
+  @ApiPropertyOptional({ type: LinkDto })
+  @IsOptional()
+  link?: LinkDto;
 }

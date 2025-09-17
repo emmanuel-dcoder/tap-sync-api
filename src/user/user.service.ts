@@ -61,10 +61,11 @@ export class UserService {
 
   async updateUserCardProfile(
     user: string,
-    updateUserCardDto: CreateUserCardDto,
+    createUserCardDto: CreateUserCardDto,
     files?: any,
   ) {
     try {
+      console.log('payload', createUserCardDto);
       let bannerUpload: string | undefined;
       let profileUpload: string | undefined;
 
@@ -77,7 +78,7 @@ export class UserService {
       }
 
       const updateData = {
-        ...updateUserCardDto,
+        ...createUserCardDto,
         ...(bannerUpload && { bannerImage: bannerUpload }),
         ...(profileUpload && { profileImage: profileUpload }),
       };
@@ -87,30 +88,6 @@ export class UserService {
         updateData,
         { new: true, runValidators: true },
       );
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  //add links
-  async addLinks(user: string, linkDto: LinkDto) {
-    try {
-      const updateData = {
-        link: { ...linkDto },
-      };
-
-      const link = await this.userModel.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(user) },
-        updateData,
-        { new: true, runValidators: true },
-      );
-
-      if (!link) throw new BadRequestException('Unable to update link');
-
-      return link;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

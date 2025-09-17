@@ -32,6 +32,7 @@ import { successResponse } from 'src/core/config/response';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { CreateUserCardDto, LinkDto } from './dto/create-user-card.dto';
+import { BadRequestErrorException } from 'src/core/common/filters/error-exceptions';
 
 @Controller('api/v1/user')
 @ApiTags('Onboarding Company or Individual')
@@ -148,7 +149,7 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'This is to update user card details' })
+  @ApiOperation({ summary: 'Update user card details including links' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -161,21 +162,34 @@ export class UserController {
           nullable: true,
         },
         textColor: { type: 'string', example: '#FFFFFF', nullable: true },
+        link: {
+          type: 'object',
+          properties: {
+            website: {
+              type: 'string',
+              example: 'https://example.com',
+              nullable: true,
+            },
+            socialMedia: {
+              type: 'string',
+              example: 'https://twitter.com/user',
+              nullable: true,
+            },
+            messaging: {
+              type: 'string',
+              example: 'https://wa.me/1234567890',
+              nullable: true,
+            },
+            custom: {
+              type: 'string',
+              example: 'https://customlink.com',
+              nullable: true,
+            },
+          },
+          nullable: true,
+        },
         bannerImage: { type: 'string', format: 'binary', nullable: true },
         profileImage: { type: 'string', format: 'binary', nullable: true },
-        // link: {
-        //   type: 'object',
-        //   properties: {
-        //     website: { type: 'string', example: 'https://example.com' },
-        //     socialMedia: {
-        //       type: 'string',
-        //       example: 'https://twitter.com/user',
-        //     },
-        //     messaging: { type: 'string', example: 'https://wa.me/1234567890' },
-        //     custom: { type: 'string', example: 'https://customlink.com' },
-        //   },
-        //   nullable: true,
-        // },
       },
     },
   })
@@ -189,7 +203,7 @@ export class UserController {
   @ApiResponse({ status: 400, description: 'Error performing task' })
   async updateUserCardDetails(
     @Req() req: any,
-    @Body() updateUserCardDto: CreateUserCardDto,
+    @Body() createUserCardDto: CreateUserCardDto,
     @UploadedFiles()
     files: {
       bannerImage?: Express.Multer.File[];
@@ -197,34 +211,22 @@ export class UserController {
     },
   ) {
     const user = req.user._id;
+
+    // 🔥 Parse link if it comes in as a string
+    if (createUserCardDto.link && typeof createUserCardDto.link === 'string') {
+      try {
+        createUserCardDto.link = JSON.parse(createUserCardDto.link);
+      } catch (e) {
+        throw new BadRequestErrorException('Invalid JSON format for link');
+      }
+    }
     const data = await this.userService.updateUserCardProfile(
       user,
-      updateUserCardDto,
+      createUserCardDto,
       files,
     );
     return {
       message: 'Card details updated',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    };
-  }
-
-  /**Add link */
-  @Put('link-details')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: 'This is to update user card social media link details',
-  })
-  @ApiBody({ type: LinkDto })
-  @ApiResponse({ status: 200, description: 'Link details updated.' })
-  @ApiResponse({ status: 400, description: 'Error performing task' })
-  async addLink(@Req() req: any, @Body() linkDto: LinkDto) {
-    const user = req.user._id;
-    const data = await this.userService.addLinks(user, linkDto);
-    return {
-      message: 'Link details updated.',
       code: HttpStatus.OK,
       status: 'success',
       data,
