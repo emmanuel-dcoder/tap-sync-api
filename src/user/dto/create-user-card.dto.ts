@@ -42,6 +42,10 @@ export class CreateUserCardDto {
   @IsString()
   textColor: string;
 
+  @ApiProperty({ description: 'background color' })
+  @IsString()
+  backgroundColor: string;
+
   @ApiPropertyOptional({ type: LinkDto })
   @IsOptional()
   link?: LinkDto;

@@ -162,6 +162,7 @@ export class UserController {
           nullable: true,
         },
         textColor: { type: 'string', example: '#FFFFFF', nullable: true },
+        backgroundColor: { type: 'string', example: '#FFFFFF', nullable: true },
         link: {
           type: 'object',
           properties: {
