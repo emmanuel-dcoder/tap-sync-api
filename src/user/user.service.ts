@@ -27,7 +27,9 @@ import { MailService } from 'src/core/mail/email';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserCardDto, LinkDto } from './dto/create-user-card.dto';
+import { CreateUserCardDto } from './dto/create-user-card.dto';
+import { RequestDto } from 'src/request/dto/create-request.dto';
+import { Request } from 'src/request/schemas/request.schema';
 @Injectable()
 export class UserService {
   constructor(
@@ -35,6 +37,7 @@ export class UserService {
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
     private jwtService: JwtService,
+    @InjectModel(Request.name) private requestModel: Model<Request>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -60,12 +63,11 @@ export class UserService {
   }
 
   async updateUserCardProfile(
-    user: string,
+    userId: string,
     createUserCardDto: CreateUserCardDto,
     files?: any,
   ) {
     try {
-      console.log('payload', createUserCardDto);
       let bannerUpload: string | undefined;
       let profileUpload: string | undefined;
 
@@ -77,6 +79,19 @@ export class UserService {
         profileUpload = await this.uploadUserImage(files.profileImage[0]);
       }
 
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+      let profileLink;
+      let validateProfileLink;
+
+      if (user.profileLink !== null || !user.profileLink) {
+        do {
+          profileLink = `https://tapsync.com/${AlphaNumeric(3)}`;
+          validateProfileLink = await this.userModel.findOne({ profileLink });
+        } while (validateProfileLink);
+      }
+
       const updateData = {
         ...createUserCardDto,
         ...(bannerUpload && { bannerImage: bannerUpload }),
@@ -84,10 +99,36 @@ export class UserService {
       };
 
       return await this.userModel.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(user) },
+        { _id: new mongoose.Types.ObjectId(userId) },
         updateData,
         { new: true, runValidators: true },
       );
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**card request */
+  async cardRequest(userId: string, requestDto: RequestDto, files?: any) {
+    try {
+      let logo: string | undefined;
+
+      if (files?.logo?.[0]) {
+        logo = await this.uploadUserImage(files.logo[0]);
+      }
+
+      const request = await this.requestModel.create({
+        ...requestDto,
+        logo,
+        userId: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (!request)
+        throw new BadRequestException('Unable to create card request...');
+      return request;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

@@ -24,6 +24,9 @@ export class User {
   name: string;
 
   @Prop({ default: null })
+  profileLink: string;
+
+  @Prop({ default: null })
   businessName: string;
 
   @Prop({ default: null })

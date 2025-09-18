@@ -33,6 +33,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { CreateUserCardDto, LinkDto } from './dto/create-user-card.dto';
 import { BadRequestErrorException } from 'src/core/common/filters/error-exceptions';
+import { RequestDto } from 'src/request/dto/create-request.dto';
 
 @Controller('api/v1/user')
 @ApiTags('Onboarding Company or Individual')
@@ -162,31 +163,25 @@ export class UserController {
           nullable: true,
         },
         textColor: { type: 'string', example: '#FFFFFF', nullable: true },
-        backgroundColor: { type: 'string', example: '#FFFFFF', nullable: true },
-        link: {
-          type: 'object',
-          properties: {
-            website: {
-              type: 'string',
-              example: 'https://example.com',
-              nullable: true,
-            },
-            socialMedia: {
-              type: 'string',
-              example: 'https://twitter.com/user',
-              nullable: true,
-            },
-            messaging: {
-              type: 'string',
-              example: 'https://wa.me/1234567890',
-              nullable: true,
-            },
-            custom: {
-              type: 'string',
-              example: 'https://customlink.com',
-              nullable: true,
-            },
-          },
+        backgroundColor: { type: 'string', example: '#000000', nullable: true },
+        'link[website]': {
+          type: 'string',
+          example: 'https://example.com',
+          nullable: true,
+        },
+        'link[socialMedia]': {
+          type: 'string',
+          example: 'https://twitter.com/user',
+          nullable: true,
+        },
+        'link[messaging]': {
+          type: 'string',
+          example: 'https://wa.me/1234567890',
+          nullable: true,
+        },
+        'link[custom]': {
+          type: 'string',
+          example: 'https://customlink.com',
           nullable: true,
         },
         bannerImage: { type: 'string', format: 'binary', nullable: true },
@@ -212,8 +207,6 @@ export class UserController {
     },
   ) {
     const user = req.user._id;
-
-    // 🔥 Parse link if it comes in as a string
     if (createUserCardDto.link && typeof createUserCardDto.link === 'string') {
       try {
         createUserCardDto.link = JSON.parse(createUserCardDto.link);
@@ -228,6 +221,58 @@ export class UserController {
     );
     return {
       message: 'Card details updated',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
+  /** update user card details controller */
+  @Put('card-request')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Update user card details including links' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        businessName: {
+          type: 'string',
+          example: 'Johnson Ezekiel',
+          nullable: true,
+        },
+        description: {
+          type: 'string',
+          example: 'Short description here',
+          nullable: true,
+        },
+        brandColors: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['#FFFFFF', '#000000'],
+          nullable: true,
+        },
+        logo: { type: 'string', format: 'binary', nullable: true },
+      },
+    },
+  })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'logo', maxCount: 1 }]))
+  @ApiResponse({ status: 200, description: 'Card request successful' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async requestCard(
+    @Req() req: any,
+    @Body() requestDto: RequestDto,
+    @UploadedFiles()
+    files: {
+      logo?: Express.Multer.File[];
+    },
+  ) {
+    const user = req.user._id;
+
+    const data = await this.userService.cardRequest(user, requestDto, files);
+
+    return {
+      message: 'Card request successful',
       code: HttpStatus.OK,
       status: 'success',
       data,
