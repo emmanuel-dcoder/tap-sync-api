@@ -9,8 +9,8 @@ export class Link {
   @Prop()
   website: string;
 
-  @Prop()
-  socialMedia: string;
+  @Prop({ type: [String] })
+  socialMedia: string[];
 
   @Prop()
   messaging: string;

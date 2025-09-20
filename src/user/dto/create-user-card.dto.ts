@@ -7,10 +7,13 @@ export class LinkDto {
   @IsUrl({}, { message: 'website must be a valid URL' })
   website?: string;
 
-  @ApiPropertyOptional({ example: 'https://twitter.com/user' })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['facebook.come', 'twitter.com'],
+  })
   @IsOptional()
   @IsUrl({}, { message: 'socialMedia must be a valid URL' })
-  socialMedia?: string;
+  socialMedia?: string[];
 
   @ApiPropertyOptional({ example: 'https://wa.me/1234567890' })
   @IsOptional()
@@ -19,8 +22,11 @@ export class LinkDto {
 
   @ApiPropertyOptional({ example: 'https://customlink.com' })
   @IsOptional()
-  @IsUrl({}, { message: 'custom must be a valid URL' })
+  @IsUrl({}, { message: 'custom must be a valid URL', each: true })
   custom: string;
+
+  @ApiProperty({ type: [String], example: ['#FFFFFF', '#000000'] })
+  brandColors: string[];
 }
 
 export class CreateUserCardDto {

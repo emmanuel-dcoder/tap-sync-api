@@ -170,8 +170,9 @@ export class UserController {
           nullable: true,
         },
         'link[socialMedia]': {
-          type: 'string',
-          example: 'https://twitter.com/user',
+          type: 'array',
+          items: { type: 'string' },
+          example: ['https://twitter.com/user', 'https://twitter.com/user'],
           nullable: true,
         },
         'link[messaging]': {
