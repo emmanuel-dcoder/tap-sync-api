@@ -85,7 +85,12 @@ export class UserService {
       let profileLink;
       let validateProfileLink;
 
-      if (user.profileLink !== null || !user.profileLink) {
+      if (
+        user.profileLink === null ||
+        !user.profileLink ||
+        user.profileLink === undefined ||
+        user.profileLink === ''
+      ) {
         do {
           profileLink = `https://tapsync.com/${AlphaNumeric(3)}`;
           validateProfileLink = await this.userModel.findOne({ profileLink });
