@@ -1,9 +1,8 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Taps } from './schemas/taps.schema';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { MailService } from 'src/core/mail/email';
-import { User } from 'src/user/schemas/user.schema';
 import { CreateTapsDto } from './dto/create-taps.dto';
 
 @Injectable()
