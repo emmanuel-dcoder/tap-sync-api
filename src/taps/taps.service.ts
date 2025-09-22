@@ -10,15 +10,11 @@ import { CreateTapsDto } from './dto/create-taps.dto';
 export class TapsService {
   constructor(
     @InjectModel(Taps.name) private tapsModel: Model<Taps>,
-    @InjectModel(User.name) private userModel: Model<User>,
     private readonly mailService: MailService,
   ) {}
 
-  async addTaps(userId: string, dto: CreateTapsDto) {
+  async addTaps(dto: CreateTapsDto) {
     try {
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        throw new BadRequestException('Invalid user ID format');
-      }
       const { profileLink } = dto;
       //validate lin
       const linkExist = await this.tapsModel.findOne({ profileLink });
@@ -27,7 +23,8 @@ export class TapsService {
         await linkExist.save();
         return;
       }
-      await this.tapsModel.create({ profileLink });
+
+      await this.tapsModel.create({ profileLink, $inc: { count: 1 } });
 
       return;
     } catch (error) {
