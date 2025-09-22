@@ -18,7 +18,7 @@ export class LinkDto {
   @ApiPropertyOptional({ example: 'https://wa.me/1234567890' })
   @IsOptional()
   @IsUrl({}, { message: 'messaging must be a valid URL' })
-  messaging?: string;
+  messaging?: string[];
 
   @ApiPropertyOptional({ example: 'https://customlink.com' })
   @IsOptional()

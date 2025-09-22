@@ -12,8 +12,8 @@ export class Link {
   @Prop({ type: [String] })
   socialMedia: string[];
 
-  @Prop()
-  messaging: string;
+  @Prop({ type: [String] })
+  messaging: string[];
 
   @Prop()
   custom: string;

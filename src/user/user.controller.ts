@@ -176,8 +176,9 @@ export class UserController {
           nullable: true,
         },
         'link[messaging]': {
-          type: 'string',
-          example: 'https://wa.me/1234567890',
+          type: 'array',
+          items: { type: 'string' },
+          example: ['https://twitter.com/user', 'https://twitter.com/user'],
           nullable: true,
         },
         'link[custom]': {
