@@ -18,7 +18,6 @@ import {
   DeleteAccountDto,
   ForgotPasswordDto,
   LoginDto,
-  VerifyOtpDto,
 } from './dto/create-user.dto';
 import {
   ApiBearerAuth,
@@ -139,6 +138,27 @@ export class UserController {
     const data = await this.userService.changePassword(userId, dto);
     return successResponse({
       message: 'Password changed successfully.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  //get user profile
+  @Get('profile')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get Profile' })
+  @ApiResponse({ status: 200, description: 'Retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to perform task' })
+  async profile(@Req() req: any) {
+    const userId = req.user._id;
+    if (!req) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    const data = await this.userService.userProfile(userId);
+    return successResponse({
+      message: 'Retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

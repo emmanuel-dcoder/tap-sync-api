@@ -30,6 +30,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { Request } from 'src/request/schemas/request.schema';
+import { accountType } from './enum/user.enum';
 @Injectable()
 export class UserService {
   constructor(
@@ -54,108 +55,6 @@ export class UserService {
       delete createUser.password;
 
       return createUser;
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  async updateUserCardProfile(
-    userId: string,
-    createUserCardDto: CreateUserCardDto,
-    files?: any,
-  ) {
-    try {
-      let bannerUpload: string | undefined;
-      let profileUpload: string | undefined;
-
-      if (files?.bannerImage?.[0]) {
-        bannerUpload = await this.uploadUserImage(files.bannerImage[0]);
-      }
-
-      if (files?.profileImage?.[0]) {
-        profileUpload = await this.uploadUserImage(files.profileImage[0]);
-      }
-
-      const user = await this.userModel.findOne({
-        _id: new mongoose.Types.ObjectId(userId),
-      });
-      let profileLink;
-      let validateProfileLink;
-
-      if (
-        user.profileLink === null ||
-        !user.profileLink ||
-        user.profileLink === undefined ||
-        user.profileLink === ''
-      ) {
-        do {
-          profileLink = `https://tapsync.com/${AlphaNumeric(3)}`;
-          validateProfileLink = await this.userModel.findOne({ profileLink });
-        } while (validateProfileLink);
-      }
-
-      const updateData = {
-        ...createUserCardDto,
-        ...(bannerUpload && { bannerImage: bannerUpload }),
-        ...(profileUpload && { profileImage: profileUpload }),
-      };
-
-      return await this.userModel.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(userId) },
-        updateData,
-        { new: true, runValidators: true },
-      );
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  /**card request */
-  async cardRequest(userId: string, requestDto: RequestDto, files?: any) {
-    try {
-      let logo: string | undefined;
-
-      if (files?.logo?.[0]) {
-        logo = await this.uploadUserImage(files.logo[0]);
-      }
-
-      const request = await this.requestModel.create({
-        ...requestDto,
-        logo,
-        userId: new mongoose.Types.ObjectId(userId),
-      });
-
-      if (!request)
-        throw new BadRequestException('Unable to create card request...');
-      return request;
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  //edit user profile
-  async editUserProfile(user: string, UpdateUserDto: UpdateUserDto) {
-    try {
-      const validateUser = await this.userModel.findOne({
-        _id: new mongoose.Types.ObjectId(user),
-      });
-
-      if (!validateUser) throw new BadRequestException('Invalid user id');
-
-      await this.userModel.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(user) },
-        { ...UpdateUserDto },
-        { new: true, runValidators: true },
-      );
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
@@ -339,6 +238,152 @@ export class UserService {
       user.profileImage = uploadImage;
 
       await user.save();
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //user profile service
+
+  async userProfile(userId: string) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID format');
+      }
+
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (!user) throw new BadRequestException('Invalid user');
+
+      return {
+        _id: user._id,
+        profileLink: user.profileLink,
+        businessName: user.businessName,
+        businessEmail: user.businessEmail,
+        businessPhoneNumber: user.businessPhoneNumber,
+        businessUsername: user.businessUsername,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        username: user.username,
+        profileImage: user.profileImage,
+        isVerified: user.isVerified,
+        accountType: user.accountType,
+        title: user.title,
+        bannerImage: user.bannerImage,
+        textColor: user.textColor,
+        link: user.link,
+        backgroundColor: user.backgroundColor,
+      };
+
+      return user;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async updateUserCardProfile(
+    userId: string,
+    createUserCardDto: CreateUserCardDto,
+    files?: any,
+  ) {
+    try {
+      let bannerUpload: string | undefined;
+      let profileUpload: string | undefined;
+
+      if (files?.bannerImage?.[0]) {
+        bannerUpload = await this.uploadUserImage(files.bannerImage[0]);
+      }
+
+      if (files?.profileImage?.[0]) {
+        profileUpload = await this.uploadUserImage(files.profileImage[0]);
+      }
+
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+      let profileLink;
+      let validateProfileLink;
+
+      if (
+        user.profileLink === null ||
+        !user.profileLink ||
+        user.profileLink === undefined ||
+        user.profileLink === ''
+      ) {
+        do {
+          profileLink = `https://tapsync.com/${AlphaNumeric(3)}`;
+          validateProfileLink = await this.userModel.findOne({ profileLink });
+        } while (validateProfileLink);
+      }
+
+      const updateData = {
+        ...createUserCardDto,
+        ...(bannerUpload && { bannerImage: bannerUpload }),
+        ...(profileUpload && { profileImage: profileUpload }),
+      };
+
+      return await this.userModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(userId) },
+        updateData,
+        { new: true, runValidators: true },
+      );
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**card request */
+  async cardRequest(userId: string, requestDto: RequestDto, files?: any) {
+    try {
+      let logo: string | undefined;
+
+      if (files?.logo?.[0]) {
+        logo = await this.uploadUserImage(files.logo[0]);
+      }
+
+      const request = await this.requestModel.create({
+        ...requestDto,
+        logo,
+        userId: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (!request)
+        throw new BadRequestException('Unable to create card request...');
+      return request;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //edit user profile
+  async editUserProfile(user: string, UpdateUserDto: UpdateUserDto) {
+    try {
+      const validateUser = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(user),
+      });
+
+      if (!validateUser) throw new BadRequestException('Invalid user id');
+
+      await this.userModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(user) },
+        { ...UpdateUserDto },
+        { new: true, runValidators: true },
+      );
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
