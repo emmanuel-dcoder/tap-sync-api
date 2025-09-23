@@ -52,7 +52,7 @@ export class UserService {
         password: hashedPassword,
       });
 
-      delete createUser.password;
+      createUser.password = undefined;
 
       return createUser;
     } catch (error) {
@@ -280,8 +280,6 @@ export class UserService {
         backgroundColor: user.backgroundColor,
         bio: user.bio,
       };
-
-      return user;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
@@ -313,10 +311,12 @@ export class UserService {
       let profileLink;
       let validateProfileLink;
 
-      do {
-        profileLink = `https://tapsync.com/${AlphaNumeric(3)}`;
-        validateProfileLink = await this.userModel.findOne({ profileLink });
-      } while (validateProfileLink);
+      if (user.profileLink === null || !user.profileLink) {
+        do {
+          profileLink = `https://tapsync.com/${AlphaNumeric(3)}`;
+          validateProfileLink = await this.userModel.findOne({ profileLink });
+        } while (validateProfileLink);
+      }
 
       const updateData = {
         ...createUserCardDto,
@@ -326,7 +326,7 @@ export class UserService {
 
       return await this.userModel.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId(userId) },
-        updateData,
+        { ...updateData, profileLink },
         { new: true, runValidators: true },
       );
     } catch (error) {
