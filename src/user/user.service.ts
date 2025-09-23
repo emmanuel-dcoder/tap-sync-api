@@ -247,7 +247,6 @@ export class UserService {
   }
 
   //user profile service
-
   async userProfile(userId: string) {
     try {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -279,6 +278,7 @@ export class UserService {
         textColor: user.textColor,
         link: user.link,
         backgroundColor: user.backgroundColor,
+        bio: user.bio,
       };
 
       return user;
