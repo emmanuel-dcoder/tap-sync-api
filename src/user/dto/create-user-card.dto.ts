@@ -7,6 +7,11 @@ export class LinkDto {
   @IsUrl({}, { message: 'website must be a valid URL' })
   website?: string;
 
+  @ApiPropertyOptional({ example: '+2348137123489' })
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
   @ApiPropertyOptional({
     type: [String],
     example: ['facebook.come', 'twitter.com'],

@@ -9,6 +9,9 @@ export class Link {
   @Prop()
   website: string;
 
+  @Prop()
+  phoneNumber: string;
+
   @Prop({ type: [String] })
   socialMedia: string[];
 

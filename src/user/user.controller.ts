@@ -189,6 +189,11 @@ export class UserController {
           example: 'https://example.com',
           nullable: true,
         },
+        'link[phoneNumber]': {
+          type: 'string',
+          example: '09087654321',
+          nullable: true,
+        },
         'link[socialMedia]': {
           type: 'array',
           items: { type: 'string' },
