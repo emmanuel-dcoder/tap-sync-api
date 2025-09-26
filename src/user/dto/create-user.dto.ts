@@ -3,24 +3,24 @@ import { IsEmail, IsString } from 'class-validator';
 import { accountType } from '../enum/user.enum';
 
 export class CreateUserDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'benjamin joseph' })
   @IsString()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'joseph@gmail.com' })
   @IsString()
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '09089876543' })
   @IsString()
   phone: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'jojo' })
   @IsString()
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'secret' })
   @IsString()
   password: string;
 
@@ -50,11 +50,11 @@ export class ForgotPasswordDto {
 }
 
 export class LoginDto {
-  @ApiProperty({ example: 'opeoluwaoyedejif@gmail.com' })
+  @ApiProperty({ example: 'joseph@gmail.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: '6KvpxZ' })
+  @ApiProperty({ example: 'seret' })
   @IsString()
   password: string;
 }
