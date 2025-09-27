@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Taps } from './schemas/taps.schema';
 import mongoose, { Model } from 'mongoose';
@@ -17,13 +17,13 @@ export class TapsService {
   async addTaps(dto: CreateTapsDto) {
     try {
       const { profileLink } = dto;
-      //validate lin
+      //validate link
 
       //validate user with profile link
       const user = await this.userModel.findOne({ profileLink });
       const validUserId = user._id;
 
-      if (user) {
+      if (!user) {
         await this.tapsModel.create({
           profileLink,
           userId: new mongoose.Types.ObjectId(validUserId),
