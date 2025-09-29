@@ -5,7 +5,6 @@ import mongoose, { Model } from 'mongoose';
 import { MailService } from 'src/core/mail/email';
 import { CreateTapsDto, TapProfileDto } from './dto/create-taps.dto';
 import { User } from 'src/user/schemas/user.schema';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class TapsService {
