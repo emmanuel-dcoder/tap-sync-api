@@ -6,3 +6,12 @@ export class CreateTapsDto {
   @IsString()
   profileLink: string;
 }
+
+export class TapProfileDto {
+  @ApiProperty({
+    description: 'profile link url',
+    example: 'https://tapsync.com/123',
+  })
+  @IsString()
+  profileLink: string;
+}

@@ -1,8 +1,8 @@
-import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, Get } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { successResponse } from 'src/core/config/response';
 import { TapsService } from './taps.service';
-import { CreateTapsDto } from './dto/create-taps.dto';
+import { CreateTapsDto, TapProfileDto } from './dto/create-taps.dto';
 
 @Controller('api/v1/taps')
 @ApiTags('Add Card Taps Count')
@@ -20,6 +20,22 @@ export class TapsController {
     const data = await this.tapsService.addTaps(createTapsDto);
     return successResponse({
       message: 'Successful',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  //get user profile
+  @Get('profile')
+  @ApiOperation({ summary: 'Get Profile' })
+  @ApiBody({ type: TapProfileDto })
+  @ApiResponse({ status: 200, description: 'Retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to perform task' })
+  async profile(@Body() payload: TapProfileDto) {
+    const data = await this.tapsService.profile(payload);
+    return successResponse({
+      message: 'Retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,
