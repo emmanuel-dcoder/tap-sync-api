@@ -1,5 +1,11 @@
-import { Controller, Post, Body, HttpStatus, Get } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Post, Body, HttpStatus, Get, Query } from '@nestjs/common';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { successResponse } from 'src/core/config/response';
 import { TapsService } from './taps.service';
 import { CreateTapsDto, TapProfileDto } from './dto/create-taps.dto';
@@ -10,9 +16,7 @@ export class TapsController {
   constructor(private readonly tapsService: TapsService) {}
 
   @Post()
-  @ApiOperation({
-    summary: 'Add Taps counts',
-  })
+  @ApiOperation({ summary: 'Add Taps counts' })
   @ApiBody({ type: CreateTapsDto })
   @ApiResponse({ status: 200, description: 'Successful' })
   @ApiResponse({ status: 401, description: 'Error performing task' })
@@ -26,14 +30,13 @@ export class TapsController {
     });
   }
 
-  //get user profile
   @Get('profile')
-  @ApiOperation({ summary: 'Get Profile' })
-  @ApiBody({ type: TapProfileDto })
+  @ApiOperation({ summary: 'Get Profile with tap' })
+  @ApiQuery({ name: 'profileLink', type: String, required: true })
   @ApiResponse({ status: 200, description: 'Retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unable to perform task' })
-  async profile(@Body() payload: TapProfileDto) {
-    const data = await this.tapsService.profile(payload);
+  async profile(@Query('profileLink') profileLink: string) {
+    const data = await this.tapsService.profile({ profileLink });
     return successResponse({
       message: 'Retrieved successfully',
       code: HttpStatus.OK,

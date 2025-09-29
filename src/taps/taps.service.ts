@@ -17,20 +17,20 @@ export class TapsService {
   async addTaps(dto: CreateTapsDto) {
     try {
       const { profileLink } = dto;
-      //validate link
-
-      //validate user with profile link
       const user = await this.userModel.findOne({ profileLink });
-      const validUserId = user._id;
 
       if (!user) {
-        await this.tapsModel.create({
-          profileLink,
-          userId: new mongoose.Types.ObjectId(validUserId),
-        });
+        throw new BadRequestException(
+          'User with this profile link does not exist',
+        );
       }
 
-      return;
+      await this.tapsModel.create({
+        profileLink,
+        userId: new mongoose.Types.ObjectId(user._id),
+      });
+
+      return { message: 'Tap recorded successfully' };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
@@ -39,17 +39,17 @@ export class TapsService {
     }
   }
 
-  //user profile from tap
   async profile(data: TapProfileDto) {
     try {
       const { profileLink } = data;
-      //validate link
-
-      if (!profileLink)
+      if (!profileLink) {
         throw new BadRequestException('Profile Link cannot be empty');
+      }
 
-      //validate user with profile link
       const user = await this.userModel.findOne({ profileLink });
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
 
       return {
         _id: user._id,
