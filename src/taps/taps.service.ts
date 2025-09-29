@@ -63,7 +63,6 @@ export class TapsService {
         phone: user.phone,
         username: user.username,
         profileImage: user.profileImage,
-        isVerified: user.isVerified,
         accountType: user.accountType,
         title: user.title,
         bannerImage: user.bannerImage,
