@@ -7,6 +7,7 @@ import { AdminModule } from './admin/admin.module';
 import { UserModule } from './user/user.module';
 import { TapsModule } from './taps/taps.module';
 import { UserDashboardModule } from './user-dashboard/dashboard.module';
+import { StaffModule } from './staff/staff.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UserDashboardModule } from './user-dashboard/dashboard.module';
     UserModule,
     TapsModule,
     UserDashboardModule,
+    StaffModule,
   ],
   controllers: [AppController],
   providers: [AppService],
