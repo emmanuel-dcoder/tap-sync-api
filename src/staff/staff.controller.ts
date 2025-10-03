@@ -198,25 +198,31 @@ export class StaffController {
   @Get('')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get staff details with optional search & filter' })
+  @ApiOperation({
+    summary: 'Get staff details with optional search, filter, and pagination',
+  })
   @ApiResponse({ status: 200, description: 'Staff retrieved successfully' })
   @ApiResponse({ status: 400, description: 'Error performing task' })
   async getStaff(
     @Req() req: any,
     @Query('search') search?: string,
     @Query('department') department?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
   ) {
     const companyId = req.user._id;
     const data = await this.staffService.getStaff({
       companyId,
       search,
       department,
+      page,
+      limit,
     });
     return {
       message: 'Staff retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
-      data,
+      ...data,
     };
   }
 

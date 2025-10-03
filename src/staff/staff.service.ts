@@ -112,6 +112,8 @@ export class StaffService {
     companyId: string;
     search?: string;
     department?: string;
+    page?: number;
+    limit?: number;
   }) {
     try {
       const filter: any = {
@@ -126,9 +128,26 @@ export class StaffService {
       if (query.department) {
         filter.department = query.department;
       }
+      // Pagination setup
+      const page = Number(query.page) > 0 ? Number(query.page) : 1;
+      const limit = Number(query.limit) > 0 ? Number(query.limit) : 20;
+      const skip = (page - 1) * limit;
 
-      const staff = await this.staffModel.find(filter).sort({ createdAt: -1 });
-      return staff;
+      const staff = await this.staffModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const total = staff.length;
+
+      return {
+        staff,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error.message,
