@@ -3,3 +3,9 @@ export enum employmentType {
   partTime = 'Part-time',
   contract = 'Contract',
 }
+
+export enum staffStatus {
+  active = 'Active',
+  deactivated = 'Deactivated',
+  suspended = 'Suspended',
+}

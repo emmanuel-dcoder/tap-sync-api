@@ -5,6 +5,9 @@ import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { Staff, StaffDocument } from './schemas/staff.schema';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
+import { staffStatus } from './enum/staff.enum';
+import { validate } from 'class-validator';
+import { AlphaNumeric } from 'src/core/common/utils/authentication';
 
 @Injectable()
 export class StaffService {
@@ -28,6 +31,14 @@ export class StaffService {
       if (files?.picture?.[0]) {
         picture = await this.uploadUserImage(files.picture[0]);
       }
+
+      let staffId;
+      let validateId;
+
+      do {
+        staffId = AlphaNumeric(4);
+        validateId = await this.staffModel.findOne({ staffId });
+      } while (validateId);
 
       const staff = await this.staffModel.create({
         ...createStaffDto,
@@ -89,6 +100,81 @@ export class StaffService {
         'profile-image',
       );
       return uploadedFile.secure_url;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  async getStaff(query: {
+    companyId: string;
+    search?: string;
+    department?: string;
+  }) {
+    try {
+      const filter: any = {
+        companyId: new mongoose.Types.ObjectId(query.companyId),
+      };
+
+      if (query.search) {
+        const regex = new RegExp(query.search, 'i');
+        filter.$or = [{ name: regex }, { email: regex }, { position: regex }];
+      }
+
+      if (query.department) {
+        filter.department = query.department;
+      }
+
+      const staff = await this.staffModel.find(filter).sort({ createdAt: -1 });
+      return staff;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  async updateStaffStatus(staffId: string, status: staffStatus) {
+    try {
+      const staff = await this.staffModel.findOneAndUpdate(
+        { _id: this.toObjectId(staffId) },
+        { status },
+        { new: true, runValidators: true },
+      );
+
+      if (!staff) {
+        throw new BadRequestException('Invalid staff ID');
+      }
+
+      return staff;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  async addPoints(staffId: string, points: number) {
+    try {
+      if (points <= 0) {
+        throw new BadRequestException('Points must be greater than zero');
+      }
+
+      const staff = await this.staffModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(staffId) },
+        { $inc: { points } },
+        { new: true },
+      );
+
+      if (!staff) {
+        throw new BadRequestException('Invalid staff ID');
+      }
+
+      return staff;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error.message,

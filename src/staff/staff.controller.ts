@@ -9,6 +9,8 @@ import {
   UseGuards,
   UploadedFiles,
   Query,
+  Get,
+  Patch,
 } from '@nestjs/common';
 
 import {
@@ -24,7 +26,7 @@ import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
-import { employmentType } from './enum/staff.enum';
+import { employmentType, staffStatus } from './enum/staff.enum';
 
 @Controller('api/v1/staff')
 @ApiTags('Onboarding Company Staff and Manageent')
@@ -176,7 +178,6 @@ export class StaffController {
   @ApiResponse({ status: 200, description: 'Update successul' })
   @ApiResponse({ status: 400, description: 'Error performing task' })
   async requestCard(
-    @Req() req: any,
     @Query('id') id: string,
     @Body()
     updateSTaffDto: UpdateSTaffDto,
@@ -188,6 +189,88 @@ export class StaffController {
     const data = await this.staffService.updateStaff(id, updateSTaffDto, files);
     return {
       message: 'Update successful',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
+
+  @Get('')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get staff details with optional search & filter' })
+  @ApiResponse({ status: 200, description: 'Staff retrieved successfully' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async getStaff(
+    @Req() req: any,
+    @Query('search') search?: string,
+    @Query('department') department?: string,
+  ) {
+    const companyId = req.user._id;
+    const data = await this.staffService.getStaff({
+      companyId,
+      search,
+      department,
+    });
+    return {
+      message: 'Staff retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
+
+  @Patch('status')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update staff status' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', example: '652f23f1c9e7b3f8f13b92e1' },
+        status: {
+          type: 'string',
+          enum: Object.values(staffStatus),
+          example: staffStatus.suspended,
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Status updated successfully' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async updateStatus(
+    @Body('id') id: string,
+    @Body('status') status: staffStatus,
+  ) {
+    const data = await this.staffService.updateStaffStatus(id, status);
+    return {
+      message: 'Staff status updated successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
+
+  @Patch('points')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Add points to a staff' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', example: '652f23f1c9e7b3f8f13b92e1' },
+        points: { type: 'number', example: 10 },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Points added successfully' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async addPoints(@Body('id') id: string, @Body('points') points: number) {
+    const data = await this.staffService.addPoints(id, points);
+    return {
+      message: 'Points added successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

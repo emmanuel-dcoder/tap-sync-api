@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { employmentType } from '../enum/staff.enum';
+import { employmentType, staffStatus } from '../enum/staff.enum';
 
 export type StaffDocument = Staff & Document;
 
@@ -24,6 +24,9 @@ export class Staff {
   address: string;
 
   @Prop()
+  staffId: string;
+
+  @Prop()
   department: string;
 
   @Prop({
@@ -33,6 +36,13 @@ export class Staff {
   })
   employmentType: employmentType;
 
+  @Prop({
+    type: String,
+    enum: staffStatus,
+    default: staffStatus.active,
+  })
+  status: staffStatus;
+
   @Prop()
   contactNo: string;
 
@@ -41,6 +51,9 @@ export class Staff {
 
   @Prop()
   emergencyContactNo: string;
+
+  @Prop({ type: Number, default: 0, min: 0 })
+  points: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   companyId: mongoose.Types.ObjectId;
