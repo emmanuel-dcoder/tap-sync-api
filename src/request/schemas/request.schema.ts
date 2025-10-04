@@ -14,6 +14,9 @@ export class Request {
   @Prop({ required: true })
   description: string;
 
+  @Prop({ required: true, default: 1 })
+  quantity: number;
+
   @Prop({ type: [String], required: true })
   brandColors: string[];
 

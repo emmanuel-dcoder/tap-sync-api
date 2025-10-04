@@ -68,6 +68,9 @@ export class User {
   @Prop({ default: null })
   textColor: string;
 
+  @Prop({ default: null })
+  quantity: number;
+
   @Prop({ type: Link })
   link: Link;
 

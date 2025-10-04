@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class LinkDto {
   @ApiPropertyOptional({ example: 'https://example.com' })
@@ -48,6 +48,10 @@ export class CreateUserCardDto {
   })
   @IsString()
   bio: string;
+
+  @ApiProperty()
+  @IsNumber()
+  quantity?: number;
 
   @ApiProperty({ description: 'text color' })
   @IsString()
