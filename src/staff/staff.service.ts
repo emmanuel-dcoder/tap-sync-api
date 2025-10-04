@@ -6,7 +6,6 @@ import { Staff, StaffDocument } from './schemas/staff.schema';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { staffStatus } from './enum/staff.enum';
-import { validate } from 'class-validator';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
 
 @Injectable()

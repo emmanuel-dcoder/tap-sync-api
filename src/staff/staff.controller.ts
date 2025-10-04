@@ -18,6 +18,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -201,16 +202,33 @@ export class StaffController {
   @ApiOperation({
     summary: 'Get staff details with optional search, filter, and pagination',
   })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'department', required: false, type: String })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 20,
+    description: 'Number of items per page (default: 20)',
+  })
   @ApiResponse({ status: 200, description: 'Staff retrieved successfully' })
   @ApiResponse({ status: 400, description: 'Error performing task' })
   async getStaff(
     @Req() req: any,
     @Query('search') search?: string,
     @Query('department') department?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 20,
   ) {
     const companyId = req.user._id;
+
     const data = await this.staffService.getStaff({
       companyId,
       search,
@@ -218,6 +236,7 @@ export class StaffController {
       page,
       limit,
     });
+
     return {
       message: 'Staff retrieved successfully',
       code: HttpStatus.OK,
