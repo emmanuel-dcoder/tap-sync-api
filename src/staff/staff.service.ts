@@ -108,8 +108,8 @@ export class StaffService {
   }
 
   async getStaff(query: {
-    staffId: string;
     companyId: string;
+    staffId?: string;
     search?: string;
     department?: string;
     page?: number;
@@ -121,7 +121,7 @@ export class StaffService {
       };
 
       if (query.staffId) {
-        _id: new mongoose.Types.ObjectId(query.staffId);
+        filter._id = new mongoose.Types.ObjectId(query.staffId);
       }
 
       if (query.search) {
@@ -136,7 +136,7 @@ export class StaffService {
       const page = Number(query.page) > 0 ? Number(query.page) : 1;
       const limit = Number(query.limit) > 0 ? Number(query.limit) : 20;
       const skip = (page - 1) * limit;
-
+      console.log('68e18f24770f48e6ab4174cc', filter);
       const staff = await this.staffModel
         .find(filter)
         .sort({ createdAt: -1 })
