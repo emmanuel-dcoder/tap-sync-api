@@ -58,6 +58,7 @@ export class UserController {
         accountType: {
           type: 'string',
           example: accountType.company,
+          description: 'company or individual',
           nullable: true,
         },
         logo: { type: 'string', format: 'binary', nullable: true },
