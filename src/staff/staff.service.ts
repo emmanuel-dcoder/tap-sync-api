@@ -7,6 +7,7 @@ import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { staffStatus } from './enum/staff.enum';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
+import { paginate } from 'src/utils/utils';
 
 @Injectable()
 export class StaffService {
@@ -132,25 +133,18 @@ export class StaffService {
       if (query.department) {
         filter.department = query.department;
       }
-      // Pagination setup
-      const page = Number(query.page) > 0 ? Number(query.page) : 1;
-      const limit = Number(query.limit) > 0 ? Number(query.limit) : 20;
-      const skip = (page - 1) * limit;
-      console.log('68e18f24770f48e6ab4174cc', filter);
-      const staff = await this.staffModel
-        .find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
 
-      const total = staff.length;
+      const modelQuery = this.staffModel.find(filter).sort({ createdAt: -1 });
+
+      // Use the pagination utility
+      const pagination = await paginate(modelQuery, query.page, query.limit);
 
       return {
-        staff,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        staff: pagination.data,
+        total: pagination.total,
+        page: pagination.page,
+        limit: pagination.limit,
+        totalPages: pagination.totalPages,
       };
     } catch (error) {
       throw new HttpException(

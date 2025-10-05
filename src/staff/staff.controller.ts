@@ -234,13 +234,13 @@ export class StaffController {
     @Query('staffId') staffId?: string,
     @Query('page')
     page: number = 1,
-    @Query('limit') limit: number = 20,
+    @Query('limit') limit: number = 50,
   ) {
     const companyId = req.user._id;
 
     const data = await this.staffService.getStaff({
-      staffId,
       companyId,
+      staffId,
       search,
       department,
       page,
