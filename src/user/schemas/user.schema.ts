@@ -30,6 +30,9 @@ export class User {
   profileLink: string;
 
   @Prop({ default: null })
+  logo: string;
+
+  @Prop({ default: null })
   businessName: string;
 
   @Prop({ default: null })

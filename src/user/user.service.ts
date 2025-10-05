@@ -30,7 +30,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { Request } from 'src/request/schemas/request.schema';
-import { accountType } from './enum/user.enum';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -41,17 +41,24 @@ export class UserService {
     @InjectModel(Request.name) private requestModel: Model<Request>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, files?: any) {
     try {
+      let logo: string | undefined;
+
+      if (files?.bannerImage?.[0]) {
+        logo = await this.uploadUserImage(files.logo[0]);
+      }
       const { email, password } = createUserDto;
       const validateUser = await this.userModel.findOne({ email });
       if (validateUser) throw new BadGatewayException('Email already exist');
+
       const hashedPassword = await hashPassword(password);
-      const createUser = await this.userModel.create({
+      const updateData = {
         ...createUserDto,
         password: hashedPassword,
-      });
-
+        ...(logo && { logo }),
+      };
+      const createUser = await this.userModel.create(updateData);
       createUser.password = undefined;
 
       return createUser;
@@ -296,6 +303,7 @@ export class UserService {
     try {
       let bannerUpload: string | undefined;
       let profileUpload: string | undefined;
+      let logo: string | undefined;
 
       if (files?.bannerImage?.[0]) {
         bannerUpload = await this.uploadUserImage(files.bannerImage[0]);
@@ -303,6 +311,9 @@ export class UserService {
 
       if (files?.profileImage?.[0]) {
         profileUpload = await this.uploadUserImage(files.profileImage[0]);
+      }
+      if (files?.logo?.[0]) {
+        logo = await this.uploadUserImage(files.logo[0]);
       }
 
       const user = await this.userModel.findOne({
@@ -322,6 +333,7 @@ export class UserService {
         ...createUserCardDto,
         ...(bannerUpload && { bannerImage: bannerUpload }),
         ...(profileUpload && { profileImage: profileUpload }),
+        ...(logo && { logo }),
       };
 
       return await this.userModel.findOneAndUpdate(

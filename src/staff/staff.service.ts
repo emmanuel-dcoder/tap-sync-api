@@ -135,7 +135,6 @@ export class StaffService {
       }
 
       const modelQuery = this.staffModel.find(filter).sort({ createdAt: -1 });
-
       const pagination = await paginate(modelQuery, query.page, query.limit);
 
       return {

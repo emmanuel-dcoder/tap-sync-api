@@ -33,6 +33,7 @@ import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { CreateUserCardDto, LinkDto } from './dto/create-user-card.dto';
 import { BadRequestErrorException } from 'src/core/common/filters/error-exceptions';
 import { RequestDto } from 'src/request/dto/create-request.dto';
+import { accountType } from './enum/user.enum';
 
 @Controller('api/v1/user')
 @ApiTags('Onboarding Company or Individual')
@@ -44,11 +45,35 @@ export class UserController {
     summary: 'Create indiviual or company',
     description: `Account type must be either "inidividual" or "company"`,
   })
-  @ApiBody({ type: CreateUserDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Johnson Ezekiel', nullable: false },
+        email: { type: 'string', example: 'joseph@gmail.com', nullable: false },
+        phone: { type: 'string', example: '09089876543', nullable: false },
+        password: { type: 'string', example: 'secret', nullable: false },
+        username: { type: 'string', example: 'real-user', nullable: true },
+        accountType: {
+          type: 'string',
+          example: accountType.company,
+          nullable: true,
+        },
+        logo: { type: 'string', format: 'binary', nullable: true },
+      },
+    },
+  })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'logo', maxCount: 1 }]))
   @ApiResponse({ status: 200, description: 'Successful' })
   @ApiResponse({ status: 401, description: 'Error performing task' })
-  async create(@Body() createUserDto: CreateUserDto) {
-    const data = await this.userService.create(createUserDto);
+  async create(
+    @Body() createUserDto: CreateUserDto,
+    files: {
+      logo?: Express.Multer.File[];
+    },
+  ) {
+    const data = await this.userService.create(createUserDto, files);
     return successResponse({
       message: 'Successful',
       code: HttpStatus.OK,
@@ -225,6 +250,7 @@ export class UserController {
     FileFieldsInterceptor([
       { name: 'bannerImage', maxCount: 1 },
       { name: 'profileImage', maxCount: 1 },
+      { name: 'logo', maxCount: 1 },
     ]),
   )
   @ApiResponse({ status: 200, description: 'Card details updated.' })
@@ -236,6 +262,7 @@ export class UserController {
     files: {
       bannerImage?: Express.Multer.File[];
       profileImage?: Express.Multer.File[];
+      logo?: Express.Multer.File[];
     },
   ) {
     const user = req.user._id;
