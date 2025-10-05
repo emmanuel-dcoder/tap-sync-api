@@ -218,18 +218,28 @@ export class StaffController {
     example: 20,
     description: 'Number of items per page (default: 20)',
   })
+  @ApiQuery({
+    name: 'staffId',
+    required: false,
+    type: String,
+    example: '624f048d886a86063a88f1d2',
+    description: 'This should be mongo id',
+  })
   @ApiResponse({ status: 200, description: 'Staff retrieved successfully' })
   @ApiResponse({ status: 400, description: 'Error performing task' })
   async getStaff(
     @Req() req: any,
     @Query('search') search?: string,
     @Query('department') department?: string,
-    @Query('page') page: number = 1,
+    @Query('staffId') staffId?: string,
+    @Query('page')
+    page: number = 1,
     @Query('limit') limit: number = 20,
   ) {
     const companyId = req.user._id;
 
     const data = await this.staffService.getStaff({
+      staffId,
       companyId,
       search,
       department,

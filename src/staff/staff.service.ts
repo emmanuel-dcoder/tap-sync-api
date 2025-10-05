@@ -108,6 +108,7 @@ export class StaffService {
   }
 
   async getStaff(query: {
+    staffId: string;
     companyId: string;
     search?: string;
     department?: string;
@@ -118,6 +119,10 @@ export class StaffService {
       const filter: any = {
         companyId: new mongoose.Types.ObjectId(query.companyId),
       };
+
+      if (query.staffId) {
+        _id: new mongoose.Types.ObjectId(query.staffId);
+      }
 
       if (query.search) {
         const regex = new RegExp(query.search, 'i');
