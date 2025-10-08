@@ -203,11 +203,6 @@ export class UserController {
       properties: {
         name: { type: 'string', example: 'Johnson Ezekiel', nullable: true },
         title: { type: 'string', example: 'Miss.', nullable: true },
-        quantity: {
-          type: 'number',
-          example: 'number of card',
-          nullable: true,
-        },
         bio: {
           type: 'string',
           example: 'Short biography here',

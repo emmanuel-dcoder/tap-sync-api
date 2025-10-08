@@ -49,10 +49,6 @@ export class CreateUserCardDto {
   @IsString()
   bio: string;
 
-  @ApiPropertyOptional()
-  @IsNumber()
-  quantity?: number;
-
   @ApiProperty({ description: 'text color' })
   @IsString()
   textColor: string;
