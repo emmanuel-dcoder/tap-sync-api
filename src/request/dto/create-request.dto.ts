@@ -1,4 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RequestDto {
@@ -10,10 +11,11 @@ export class RequestDto {
   @IsString()
   description: string;
 
-  @ApiPropertyOptional()
+  @ApiProperty()
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
-  quantity?: number;
+  quantity: number;
 
   @ApiProperty({ type: [String], example: ['#FFFFFF', '#000000'] })
   @IsString({ each: true })
