@@ -5,6 +5,10 @@ import {
   IsEnum,
   IsDateString,
   IsOptional,
+  IsArray,
+  ArrayNotEmpty,
+  IsMongoId,
+  MinLength,
 } from 'class-validator';
 import { employmentType } from '../enum/staff.enum';
 
@@ -55,4 +59,24 @@ export class CreateStaffDto {
   @IsOptional()
   @IsDateString()
   endDate?: Date;
+}
+export class NotifyStaffDto {
+  @ApiProperty({
+    type: [String],
+    example: ['652f23f1c9e7b3f8f13b92e1', '652f23f1c9e7b3f8f13b92e2'],
+    description: 'Array of staff MongoDB IDs',
+  })
+  @IsArray()
+  @ArrayNotEmpty({ message: 'staffIds array cannot be empty' })
+  @IsMongoId({ each: true, message: 'Each staffId must be a valid MongoDB ID' })
+  staffIds: string[];
+
+  @ApiProperty({
+    type: String,
+    example: 'Please attend the company meeting at 10 AM.',
+    description: 'Notification message to send to all staff',
+  })
+  @IsString()
+  @MinLength(3, { message: 'Message must be at least 3 characters long' })
+  message: string;
 }

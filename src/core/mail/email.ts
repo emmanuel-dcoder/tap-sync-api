@@ -61,7 +61,11 @@ export class MailService {
     options?: { from?: string; cc?: string; bcc?: string },
   ): Promise<void> {
     try {
-      const { from = '"Teevil" <support@teevil.com>', cc, bcc } = options || {};
+      const {
+        from = '"Tap-Sync" <support@Tap-Sync.com>',
+        cc,
+        bcc,
+      } = options || {};
       const templateSource = await this.getTemplate(templateName);
       const compiledTemplate = handlebars.compile(templateSource);
 

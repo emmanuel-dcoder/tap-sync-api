@@ -217,9 +217,9 @@ export class StaffService {
         staffList.map(async (staff) => {
           await this.mailService.sendMailNotification(
             staff.email,
-            'Forgot Password',
+            `${staff.department}: Notification`,
             { message },
-            'Message Notifcation',
+            'message',
           );
           console.log(`Sending email to ${staff.email}`);
         }),
