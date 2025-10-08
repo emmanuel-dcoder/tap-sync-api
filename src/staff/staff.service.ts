@@ -206,7 +206,7 @@ export class StaffService {
       }
 
       const staffList = await this.staffModel.find({
-        _id: { $in: { validIds } },
+        _id: { $in: validIds },
       });
 
       if (staffList.length === 0) {
@@ -218,7 +218,7 @@ export class StaffService {
           await this.mailService.sendMailNotification(
             staff.email,
             `${staff.department}: Notification`,
-            { message },
+            { message, name: staff.name },
             'message',
           );
           console.log(`Sending email to ${staff.email}`);
