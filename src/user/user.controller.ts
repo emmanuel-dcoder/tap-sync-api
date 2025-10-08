@@ -303,7 +303,7 @@ export class UserController {
         },
         quantity: {
           type: 'number',
-          example: 'number of card',
+          example: 1,
           nullable: true,
         },
         brandColors: {
