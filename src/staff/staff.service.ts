@@ -1,6 +1,6 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, mongo } from 'mongoose';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { Staff, StaffDocument } from './schemas/staff.schema';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -8,12 +8,14 @@ import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { staffStatus } from './enum/staff.enum';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
 import { paginate } from 'src/utils/utils';
+import { MailService } from 'src/core/mail/email';
 
 @Injectable()
 export class StaffService {
   constructor(
     @InjectModel(Staff.name) private staffModel: Model<StaffDocument>,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly mailService: MailService,
   ) {}
 
   private toObjectId(id: string) {
@@ -85,21 +87,6 @@ export class StaffService {
       if (!staff) throw new BadRequestException('Invalid staff ID');
 
       return staff;
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error.message,
-        error?.status ?? 500,
-      );
-    }
-  }
-
-  private async uploadUserImage(file: Express.Multer.File) {
-    try {
-      const uploadedFile = await this.cloudinaryService.uploadFile(
-        file,
-        'profile-image',
-      );
-      return uploadedFile.secure_url;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error.message,
@@ -190,6 +177,73 @@ export class StaffService {
       }
 
       return staff;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  /// send message notifcation to staff
+  async notifyStaff(staffIds: string[], message: string) {
+    try {
+      if (!Array.isArray(staffIds) || staffIds.length === 0) {
+        throw new BadRequestException('Staff id array cannot be empty');
+      }
+
+      if (!message || message.trim().length === 0) {
+        throw new BadRequestException('Message is required');
+      }
+
+      // validate ids and convert all to mongoosse id
+      const validIds = staffIds
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+
+      if (validIds.length === 0) {
+        throw new BadRequestException('No valid staff id found');
+      }
+
+      const staffList = await this.staffModel.find({
+        _id: { $in: { validIds } },
+      });
+
+      if (staffList.length === 0) {
+        throw new BadRequestException('No staff found for provided IDs');
+      }
+
+      await Promise.all(
+        staffList.map(async (staff) => {
+          await this.mailService.sendMailNotification(
+            staff.email,
+            'Forgot Password',
+            { message },
+            'Message Notifcation',
+          );
+          console.log(`Sending email to ${staff.email}`);
+        }),
+      );
+
+      return {
+        count: staffList.length,
+        recipients: staffList.map((s) => s.email),
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  private async uploadUserImage(file: Express.Multer.File) {
+    try {
+      const uploadedFile = await this.cloudinaryService.uploadFile(
+        file,
+        'profile-image',
+      );
+      return uploadedFile.secure_url;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error.message,

@@ -311,4 +311,41 @@ export class StaffController {
       data,
     };
   }
+
+  //staff notification
+  @Post('notify')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Send email notifications to multiple staff' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        staffIds: {
+          type: 'array',
+          items: { type: 'string', example: '652f23f1c9e7b3f8f13b92e1' },
+          example: ['652f23f1c9e7b3f8f13b92e1', '652f23f1c9e7b3f8f13b92e2'],
+        },
+        message: {
+          type: 'string',
+          example: 'Please attend the company meeting at 10 AM.',
+        },
+      },
+      required: ['staffIds', 'message'],
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Emails sent successfully' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async notifyStaff(
+    @Body('staffIds') staffIds: string[],
+    @Body('message') message: string,
+  ) {
+    const data = await this.staffService.notifyStaff(staffIds, message);
+    return {
+      message: 'Notifications sent successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
 }

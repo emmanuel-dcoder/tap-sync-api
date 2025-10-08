@@ -66,3 +66,4 @@ export class Staff {
 }
 
 export const StaffSchema = SchemaFactory.createForClass(Staff);
+StaffSchema.index({ email: 1 }, { unique: true });
