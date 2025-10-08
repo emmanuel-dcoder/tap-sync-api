@@ -49,7 +49,7 @@ export class CreateUserCardDto {
   @IsString()
   bio: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsNumber()
   quantity?: number;
 

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 
 export class RequestDto {
@@ -10,7 +10,7 @@ export class RequestDto {
   @IsString()
   description: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsNumber()
   quantity?: number;
 
