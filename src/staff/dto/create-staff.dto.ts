@@ -63,7 +63,7 @@ export class CreateStaffDto {
 export class NotifyStaffDto {
   @ApiProperty({
     type: [String],
-    example: ['652f23f1c9e7b3f8f13b92e1', '652f23f1c9e7b3f8f13b92e2'],
+    example: ['68e18f24770f48e6ab4174cc', '68e0becbaddb938aacc42acc'],
     description: 'Array of staff MongoDB IDs',
   })
   @IsArray()
