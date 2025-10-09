@@ -43,6 +43,12 @@ export class Staff {
   })
   status: staffStatus;
 
+  @Prop({
+    type: String,
+    default: null,
+  })
+  profileLink: string;
+
   @Prop()
   contactNo: string;
 

@@ -36,10 +36,12 @@ export class StaffService {
 
       let staffId;
       let validateId;
+      let profileLink;
 
       do {
         staffId = AlphaNumeric(4);
-        validateId = await this.staffModel.findOne({ staffId });
+        profileLink = `https://tapsync.com/${staffId}/${AlphaNumeric(3)}`;
+        validateId = await this.staffModel.findOne({ staffId, profileLink });
       } while (validateId);
 
       const staff = await this.staffModel.create({

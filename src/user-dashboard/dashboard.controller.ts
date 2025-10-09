@@ -16,7 +16,7 @@ import { successResponse } from 'src/core/config/response';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { UserDashboardService } from './dashboard.service';
 
-@Controller('api/v1/dashoard-analysis')
+@Controller('api/v1/dashboard-analysis')
 @ApiTags('User Dashboard Analysis')
 export class UserDashboardController {
   constructor(private readonly userDashboardSevice: UserDashboardService) {}
