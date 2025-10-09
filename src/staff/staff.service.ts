@@ -215,6 +215,7 @@ export class StaffService {
         throw new BadRequestException('No staff found for provided IDs');
       }
 
+      //promise
       await Promise.all(
         staffList.map(async (staff) => {
           await this.mailService.sendMailNotification(
