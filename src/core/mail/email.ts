@@ -11,15 +11,16 @@ export class MailService {
   private readonly mailTransport;
 
   constructor() {
-    // Set up mail transport
     this.mailTransport = nodemailer.createTransport({
       host: envConfig.mail.host,
       port: parseInt(envConfig.mail.port, 10),
-      secure: true,
-      requireTLS: true,
-      auth: { user: envConfig.mail.user, pass: envConfig.mail.password },
+      secure: parseInt(envConfig.mail.port, 10) === 465, // true only for 465
+      auth: {
+        user: envConfig.mail.user,
+        pass: envConfig.mail.password,
+      },
       tls: {
-        rejectUnauthorized: false, // Do not fail on invalid certs
+        rejectUnauthorized: false, // ignore self-signed certs
       },
     });
 
