@@ -19,7 +19,16 @@ export class TapsService {
   async addTaps(dto: CreateTapsDto) {
     try {
       const { profileLink } = dto;
-      const user = await this.userModel.findOne({ profileLink });
+
+      let companyId;
+      if (profileLink.includes('company')) {
+        companyId = profileLink.split('company-')[1];
+      }
+      const user = companyId
+        ? await this.userModel.findOne({
+            _id: new mongoose.Types.ObjectId(companyId),
+          })
+        : await this.userModel.findOne({ profileLink });
 
       if (!user) {
         throw new BadRequestException(
