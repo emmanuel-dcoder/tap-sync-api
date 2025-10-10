@@ -47,6 +47,7 @@ export class StaffService {
       const staff = await this.staffModel.create({
         ...createStaffDto,
         image: picture,
+        profileLink,
         companyId: this.toObjectId(companyId),
       });
 

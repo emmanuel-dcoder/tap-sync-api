@@ -82,7 +82,6 @@ export class TapsService {
   }
 
   //get staff profile with tap
-
   async staffProfile(data: TapProfileDto) {
     try {
       const { profileLink } = data;

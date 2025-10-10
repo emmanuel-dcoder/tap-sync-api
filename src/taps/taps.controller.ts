@@ -51,7 +51,7 @@ export class TapsController {
   @ApiResponse({ status: 200, description: 'Retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unable to perform task' })
   async staffProfile(@Query('profileLink') profileLink: string) {
-    const data = await this.tapsService.profile({ profileLink });
+    const data = await this.tapsService.staffProfile({ profileLink });
     return successResponse({
       message: 'Retrieved successfully',
       code: HttpStatus.OK,
