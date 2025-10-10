@@ -124,7 +124,14 @@ export class StaffService {
         filter.department = query.department;
       }
 
-      const modelQuery = this.staffModel.find(filter).sort({ createdAt: -1 });
+      const modelQuery = this.staffModel
+        .find(filter)
+        .populate({
+          path: 'companyId',
+          select:
+            'name logo businessUsername bio email profileImage bannerImage textColor link backgroundColor username phone title businessName',
+        })
+        .sort({ createdAt: -1 });
       const pagination = await paginate(modelQuery, query.page, query.limit);
 
       return {
