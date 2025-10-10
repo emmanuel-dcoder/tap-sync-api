@@ -40,7 +40,7 @@ export class StaffService {
 
       do {
         staffId = AlphaNumeric(4);
-        profileLink = `https://tapsync.com/${AlphaNumeric(3)}/company-${companyId}`;
+        profileLink = `https://tapsync.com/staff-${staffId}/company-${companyId}`;
         validateId = await this.staffModel.findOne({ staffId, profileLink });
       } while (validateId);
 
