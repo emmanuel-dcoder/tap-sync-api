@@ -5,14 +5,14 @@ import mongoose, { Model } from 'mongoose';
 import { MailService } from 'src/core/mail/email';
 import { CreateTapsDto, TapProfileDto } from './dto/create-taps.dto';
 import { User } from 'src/user/schemas/user.schema';
-import { Staff } from 'src/staff/schemas/staff.schema';
+import { Staff, StaffDocument } from 'src/staff/schemas/staff.schema';
 
 @Injectable()
 export class TapsService {
   constructor(
     @InjectModel(Taps.name) private tapsModel: Model<Taps>,
     @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(Staff.name) private staffModel: Model<Staff>,
+    @InjectModel(Staff.name) private staffModel: Model<StaffDocument>,
     private readonly mailService: MailService,
   ) {}
 
@@ -23,7 +23,10 @@ export class TapsService {
       let companyId;
       if (profileLink.includes('company')) {
         companyId = profileLink.split('company-')[1];
+      } else {
+        console.log('ℹ️ This profile link belongs to an individual user');
       }
+
       const user = companyId
         ? await this.userModel.findOne({
             _id: new mongoose.Types.ObjectId(companyId),
@@ -98,7 +101,11 @@ export class TapsService {
         throw new BadRequestException('Staff Profile Link cannot be empty');
       }
 
-      const staff = await this.staffModel.findOne({ profileLink });
+      const staff = await this.staffModel.findOne({ profileLink }).populate({
+        path: 'companyId',
+        select:
+          'name logo businessUsername bio email profileImage bannerImage textColor link backgroundColor username phone title businessName',
+      });
 
       if (!staff) {
         throw new BadRequestException('User not found');
