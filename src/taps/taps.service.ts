@@ -5,12 +5,14 @@ import mongoose, { Model } from 'mongoose';
 import { MailService } from 'src/core/mail/email';
 import { CreateTapsDto, TapProfileDto } from './dto/create-taps.dto';
 import { User } from 'src/user/schemas/user.schema';
+import { Staff } from 'src/staff/schemas/staff.schema';
 
 @Injectable()
 export class TapsService {
   constructor(
     @InjectModel(Taps.name) private tapsModel: Model<Taps>,
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Staff.name) private staffModel: Model<Staff>,
     private readonly mailService: MailService,
   ) {}
 
@@ -71,6 +73,30 @@ export class TapsService {
         backgroundColor: user.backgroundColor,
         bio: user.bio,
       };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  //get staff profile with tap
+
+  async staffProfile(data: TapProfileDto) {
+    try {
+      const { profileLink } = data;
+      if (!profileLink) {
+        throw new BadRequestException('Staff Profile Link cannot be empty');
+      }
+
+      const staff = await this.staffModel.findOne({ profileLink });
+
+      if (!staff) {
+        throw new BadRequestException('User not found');
+      }
+
+      return staff;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

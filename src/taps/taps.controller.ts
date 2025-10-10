@@ -44,4 +44,19 @@ export class TapsController {
       data,
     });
   }
+
+  @Get('profile/staff')
+  @ApiOperation({ summary: 'Get Staff Profile with tap' })
+  @ApiQuery({ name: 'profileLink', type: String, required: true })
+  @ApiResponse({ status: 200, description: 'Retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to perform task' })
+  async staffProfile(@Query('profileLink') profileLink: string) {
+    const data = await this.tapsService.profile({ profileLink });
+    return successResponse({
+      message: 'Retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 }
