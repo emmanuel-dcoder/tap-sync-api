@@ -27,13 +27,14 @@ export class TicketService {
       let validateId;
 
       do {
-        ticketId = `TICKET-${AlphaNumeric(4)}`;
+        ticketId = `TICKET-${AlphaNumeric(4, 'num')}`;
         validateId = await this.ticketModel.findOne({ ticketId });
       } while (validateId);
 
       const ticket = await this.ticketModel.create({
         user: new mongoose.Types.ObjectId(user),
         userType: 'User',
+        ticketId,
         ...payload,
       });
 
@@ -67,8 +68,7 @@ export class TicketService {
           { status: { $regex: search, $options: 'i' } },
         ];
       }
-      console.log('filter', filter);
-      console.log('query', query);
+
       const ticket = await this.ticketModel
         .find(filter)
         .populate({
