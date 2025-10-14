@@ -112,6 +112,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unable to perform task' })
   async loggedInUser(@Req() req: any) {
     const userId = req.user._id;
+    console.log('user', userId);
     if (!req) {
       throw new UnauthorizedException('User not authenticated');
     }

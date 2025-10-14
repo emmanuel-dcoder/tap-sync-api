@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { TapsModule } from './taps/taps.module';
 import { UserDashboardModule } from './user-dashboard/dashboard.module';
 import { StaffModule } from './staff/staff.module';
+import { TicketModule } from './ticket/ticket.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { StaffModule } from './staff/staff.module';
     TapsModule,
     UserDashboardModule,
     StaffModule,
+    TicketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
