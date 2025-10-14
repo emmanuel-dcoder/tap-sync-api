@@ -9,11 +9,13 @@ import {
   Query,
   Param,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -23,6 +25,7 @@ import { TicketService } from '../services/ticket.service';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
+import { status } from '../enum/ticket.enum';
 
 @ApiTags('ticket')
 @Controller('api/v1/ticket')
@@ -102,6 +105,35 @@ export class TicketController {
     const data = await this.ticketService.findOne(id);
     return successResponse({
       message: 'Ticket retrieved',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Put(':id/status')
+  @ApiOperation({ summary: 'Update ticket status' })
+  @ApiParam({ name: 'id', required: true, description: 'Ticket ID' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: Object.values(status),
+          example: 'resolved',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Ticket status updated' })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') newStatus: status,
+  ) {
+    const data = await this.ticketService.updateStatus(id, newStatus);
+    return successResponse({
+      message: 'Ticket status updated successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

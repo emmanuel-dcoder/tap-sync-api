@@ -10,6 +10,7 @@ import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { Ticket, TicketDocument } from '../schemas/ticket.schema';
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
+import { status } from '../enum/ticket.enum';
 
 @Injectable()
 export class TicketService {
@@ -99,6 +100,28 @@ export class TicketService {
         });
 
       if (!ticket) throw new NotFoundException('ticket not found');
+      return ticket;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async updateStatus(id: string, newStatus: status) {
+    try {
+      // Check if status is valid
+      if (!Object.values(status).includes(newStatus)) {
+        throw new BadRequestException('Invalid status value');
+      }
+
+      const ticket = await this.ticketModel.findById(id);
+      if (!ticket) throw new NotFoundException('Ticket not found');
+
+      ticket.status = newStatus;
+      await ticket.save();
+
       return ticket;
     } catch (error) {
       throw new HttpException(
