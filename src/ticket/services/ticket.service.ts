@@ -50,13 +50,16 @@ export class TicketService {
     }
   }
 
-  async findAll(query: PaginationDto) {
+  async findAll(query: PaginationDto & { user?: string }) {
     try {
-      const { search, page = 1, limit = 50 } = query;
+      const { search, page = 1, limit = 50, user } = query;
       const skip = (page - 1) * limit;
 
       const filter: any = {};
 
+      if (user) {
+        filter.user = user;
+      }
       if (search) {
         filter.$or = [
           { name: { $regex: search, $options: 'i' } },
@@ -64,9 +67,15 @@ export class TicketService {
           { status: { $regex: search, $options: 'i' } },
         ];
       }
-
+      console.log('filter', filter);
+      console.log('query', query);
       const ticket = await this.ticketModel
         .find(filter)
+        .populate({
+          path: 'user',
+          select:
+            'name businessName businessEmail businessUsername businessPhoneNumber email username profileImage',
+        })
         .skip(skip)
         .limit(limit);
 

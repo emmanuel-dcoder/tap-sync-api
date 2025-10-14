@@ -85,7 +85,8 @@ export class TicketController {
   })
   async findAll(@Query() query: PaginationDto, @Req() req: any) {
     const userId = req.user?._id;
-    const data = await this.ticketService.findAll(query);
+    let payload = userId ? { ...query, user: userId } : query;
+    const data = await this.ticketService.findAll(payload);
     return successResponse({
       message: 'Ticket lists',
       code: HttpStatus.OK,
