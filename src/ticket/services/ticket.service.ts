@@ -111,7 +111,6 @@ export class TicketService {
 
   async updateStatus(id: string, newStatus: status) {
     try {
-      // Check if status is valid
       if (!Object.values(status).includes(newStatus)) {
         throw new BadRequestException('Invalid status value');
       }
