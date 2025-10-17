@@ -11,6 +11,7 @@ import {
   Query,
   Get,
   Patch,
+  BadRequestException,
 } from '@nestjs/common';
 
 import {
@@ -328,6 +329,50 @@ export class StaffController {
       code: HttpStatus.OK,
       status: 'success',
       data,
+    };
+  }
+
+  /**add csv file */
+  @Post('bulk-upload')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload a CSV file to add multiple staff' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'CSV file containing staff details',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'file', maxCount: 1 }]))
+  @ApiResponse({ status: 200, description: 'Staff uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async uploadStaffCSV(
+    @Req() req: any,
+    @UploadedFiles() files: { file?: Express.Multer.File[] },
+  ) {
+    const companyId = req.user._id;
+
+    if (!files?.file?.[0]) {
+      throw new BadRequestException('CSV file is required');
+    }
+
+    const result = await this.staffService.addMultipleStaffFromCSV(
+      companyId,
+      files.file[0],
+    );
+
+    return {
+      message: 'CSV processed successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data: result,
     };
   }
 }

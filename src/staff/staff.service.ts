@@ -5,10 +5,13 @@ import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { Staff, StaffDocument } from './schemas/staff.schema';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
-import { staffStatus } from './enum/staff.enum';
+import { employmentType, staffStatus } from './enum/staff.enum';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
 import { paginate } from 'src/utils/utils';
 import { MailService } from 'src/core/mail/email';
+import * as fs from 'fs';
+import * as csvParser from 'csv-parser';
+import { Readable } from 'stream';
 
 @Injectable()
 export class StaffService {
@@ -261,5 +264,90 @@ export class StaffService {
         error?.status ?? 500,
       );
     }
+  }
+
+  /***add csv file */
+  async addMultipleStaffFromCSV(companyId: string, file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('CSV file is required');
+
+    const results: any[] = [];
+    const errors: any[] = [];
+    const promises: Promise<any>[] = [];
+    return new Promise((resolve, reject) => {
+      const stream = Readable.from(file.buffer.toString());
+
+      stream
+        .pipe(
+          csvParser({
+            mapHeaders: ({ header }) => header.trim().toLowerCase(),
+          }),
+        )
+        .on('data', (row) => {
+          // push each async operation into promises[]
+          const task = (async () => {
+            try {
+              const name = row.name?.trim();
+              const email = row.email?.trim()?.toLowerCase();
+              const position = row.position?.trim();
+
+              if (!name || !email || !position) {
+                errors.push({ row, error: 'Missing required fields' });
+                return;
+              }
+
+              let staffId: string;
+              let profileLink: string;
+              let exists;
+
+              do {
+                staffId = AlphaNumeric(4);
+                profileLink = `https://tapsync.com/staff-${staffId}/company-${companyId}`;
+                exists = await this.staffModel.findOne({ staffId });
+              } while (exists);
+
+              const staff = new this.staffModel({
+                name,
+                email,
+                position,
+                address: row.address?.trim() || '',
+                contactNo: row.contactNo?.trim() || '',
+                department: row.department?.trim() || '',
+                employmentType:
+                  row.employmentType?.trim() || employmentType.fullTime,
+                staffId,
+                profileLink,
+                companyId: new mongoose.Types.ObjectId(companyId),
+              });
+
+              await staff.save();
+
+              results.push(staff);
+            } catch (error) {
+              errors.push({ row, error: error.message });
+            }
+          })();
+
+          promises.push(task);
+        })
+        .on('end', async () => {
+          try {
+            await Promise.all(promises); // wait for all DB operations
+            resolve({
+              inserted: results.length,
+              failed: errors.length,
+              errors,
+            });
+          } catch (err) {
+            reject(
+              new HttpException(`Error inserting staff: ${err.message}`, 500),
+            );
+          }
+        })
+        .on('error', (err) => {
+          reject(
+            new HttpException(`Failed to process CSV: ${err.message}`, 500),
+          );
+        });
+    });
   }
 }
