@@ -10,11 +10,13 @@ import {
   Query,
   Param,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -108,6 +110,25 @@ export class NotificationController {
     const data = await this.notificationService.findOne(id);
     return successResponse({
       message: 'Notification retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Put(':id/read')
+  @ApiOperation({ summary: 'Mark a notification as read' })
+  @ApiParam({ name: 'id', description: 'Notification ID' })
+  @ApiResponse({ status: 200, description: 'Notification marked as read' })
+  @ApiResponse({ status: 404, description: 'Notification not found' })
+  async markAsRead(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+
+    const data = await this.notificationService.markAsRead(id, userId);
+
+    return successResponse({
+      message: 'Notification marked as read successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

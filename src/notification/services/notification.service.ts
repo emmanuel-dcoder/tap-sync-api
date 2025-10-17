@@ -88,4 +88,27 @@ export class NotificationService {
       );
     }
   }
+
+  async markAsRead(id: string, userId: string) {
+    try {
+      const notification = await this.notificationModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(id), user: userId },
+        { isRead: true },
+        { new: true },
+      );
+
+      if (!notification) {
+        throw new NotFoundException(
+          'Notification not found or not owned by user',
+        );
+      }
+
+      return notification;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 }
