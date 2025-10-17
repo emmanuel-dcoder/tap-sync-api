@@ -9,6 +9,7 @@ import {
   Get,
   Query,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,10 +23,12 @@ import { successResponse } from 'src/core/config/response';
 import { NotificationService } from '../services/notification.service';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { CreeateNotificationDto } from '../dto/create-notification.dto';
+import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 
 @ApiTags('notification')
 @Controller('api/v1/notification')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
@@ -80,20 +83,11 @@ export class NotificationController {
     example: 'notification name',
     description: 'Search query for notification',
   })
-  @ApiQuery({
-    name: 'notificationType',
-    required: false,
-    type: String,
-    example: 'job',
-    enum: ['job', 'project'],
-    description: 'Filter by notification type',
-  })
   async findAll(
     @Query() query: PaginationDto & { notificationType: string },
     @Req() req: any,
   ) {
     const userId = req.user?._id;
-    if (!userId) throw new UnauthorizedException('User not authenticated');
     const data = await this.notificationService.findAll(query, userId);
     return successResponse({
       message: 'Notification lists',

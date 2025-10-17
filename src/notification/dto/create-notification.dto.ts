@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsBoolean } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreeateNotificationDto {
   @ApiProperty({
@@ -9,34 +9,25 @@ export class CreeateNotificationDto {
   @IsString()
   title: string;
 
-  @ApiPropertyOptional({
-    example: 'project id',
+  @ApiProperty({
+    description: 'content of the notification',
+    example: 'this is the body of the notification',
   })
   @IsString()
-  projectId?: string;
-
-  @ApiProperty({ description: 'content of the notification' })
-  @IsString()
-  content: string;
+  body: string;
 
   @ApiProperty({
-    example: 'project',
-    description: 'type of notification can be job or project',
-  })
-  @IsString()
-  notificationType?: string;
-
-  @ApiProperty({
-    example: 'user',
-    description: `notitication user can be "user" or "admin"`,
+    example: 'User',
+    description: `notitication user can be "User" or "Admin"`,
   })
   @IsString()
   userType: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: true,
     description: 'boolean to confirm if notification has been read or not',
   })
+  @IsOptional()
   @IsBoolean()
   isRead?: boolean;
 }

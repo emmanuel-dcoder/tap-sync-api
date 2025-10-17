@@ -9,6 +9,7 @@ import { TapsModule } from './taps/taps.module';
 import { UserDashboardModule } from './user-dashboard/dashboard.module';
 import { StaffModule } from './staff/staff.module';
 import { TicketModule } from './ticket/ticket.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TicketModule } from './ticket/ticket.module';
     UserDashboardModule,
     StaffModule,
     TicketModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,19 +9,13 @@ export class Notification {
   title: string;
 
   @Prop({ required: true })
-  content: string;
-
-  @Prop({ required: false })
-  projectId: string;
-
-  @Prop({ required: false })
-  notificationtType: string;
+  body: string;
 
   @Prop({ type: Boolean, default: false })
   isRead: boolean;
 
-  @Prop({ type: String, enum: ['user', 'admin'] })
-  userType: 'user' | 'admin';
+  @Prop({ type: String, enum: ['User', 'Admin'] })
+  userType: 'User' | 'Admin';
 
   @Prop({ type: mongoose.Types.ObjectId, refPath: 'userType' })
   user: mongoose.Types.ObjectId;

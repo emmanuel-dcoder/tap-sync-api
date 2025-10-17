@@ -2,14 +2,17 @@ import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
-import { Notification } from '../schemas/notification.schema';
+import {
+  Notification,
+  NotificationDocument,
+} from '../schemas/notification.schema';
 import { CreeateNotificationDto } from '../dto/create-notification.dto';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectModel(Notification.name)
-    private notificationModel: Model<Notification>,
+    private notificationModel: Model<NotificationDocument>,
   ) {}
 
   async create(payload: CreeateNotificationDto & { user: string }) {
@@ -29,15 +32,17 @@ export class NotificationService {
 
   async findAll(
     query: PaginationDto & { notificationType: string },
-    userId: string,
+    userId?: string,
   ) {
     try {
       const { search, page = 1, limit = 10 } = query;
       const skip = (page - 1) * limit;
 
-      const filter: any = {
-        user: userId,
-      };
+      const filter: any = {};
+
+      if (userId) {
+        filter.user = userId;
+      }
 
       if (search) {
         filter.$or = [
@@ -46,7 +51,6 @@ export class NotificationService {
         ];
       }
 
-      console.log('filter', filter);
       const notifications = await this.notificationModel
         .find(filter)
         .skip(skip)

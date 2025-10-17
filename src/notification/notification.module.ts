@@ -1,6 +1,5 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { VerifyTokenMiddleware } from 'src/core/common/middlewares';
 import {
   Notification,
   NotificationSchema,
@@ -17,8 +16,4 @@ import { NotificationService } from './services/notification.service';
   controllers: [NotificationController],
   providers: [NotificationService],
 })
-export class NotificationModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(VerifyTokenMiddleware).forRoutes(NotificationController);
-  }
-}
+export class NotificationModule {}
