@@ -12,6 +12,7 @@ import { MailService } from 'src/core/mail/email';
 import * as fs from 'fs';
 import * as csvParser from 'csv-parser';
 import { Readable } from 'stream';
+import { NotificationService } from 'src/notification/services/notification.service';
 
 @Injectable()
 export class StaffService {
@@ -19,6 +20,7 @@ export class StaffService {
     @InjectModel(Staff.name) private staffModel: Model<StaffDocument>,
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   private toObjectId(id: string) {
@@ -57,7 +59,16 @@ export class StaffService {
       if (!staff) {
         throw new BadRequestException('Unable to create staff');
       }
-
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Staff Added 🤝',
+          body: 'Staff Added successfully 👍👍',
+          userType: 'User',
+          user: `${companyId}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
       return staff;
     } catch (error) {
       throw new HttpException(
@@ -91,6 +102,17 @@ export class StaffService {
       );
 
       if (!staff) throw new BadRequestException('Invalid staff ID');
+
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Staff Updated 🤝',
+          body: 'Staff update successfully 👍👍',
+          userType: 'User',
+          user: `${staff.companyId}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
 
       return staff;
     } catch (error) {
@@ -164,6 +186,17 @@ export class StaffService {
         throw new BadRequestException('Invalid staff ID');
       }
 
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Staff Status 🤝',
+          body: 'Staff Status updated 👍👍',
+          userType: 'User',
+          user: `${staff.companyId}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
+
       return staff;
     } catch (error) {
       throw new HttpException(
@@ -187,6 +220,17 @@ export class StaffService {
 
       if (!staff) {
         throw new BadRequestException('Invalid staff ID');
+      }
+
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Points 🤝',
+          body: 'Staff Points updated 👍👍',
+          userType: 'User',
+          user: `${staff.companyId}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
       }
 
       return staff;
@@ -326,6 +370,17 @@ export class StaffService {
               errors.push({ row, error: error.message });
             }
           })();
+
+          try {
+            this.notificationService.create({
+              title: 'Tapsync: Bulk Upload 🤝',
+              body: 'Your bulk upload is completed 👍👍',
+              userType: 'User',
+              user: `${companyId}`,
+            });
+          } catch (error) {
+            console.log('notification Error');
+          }
 
           promises.push(task);
         })

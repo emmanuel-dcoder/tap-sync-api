@@ -30,6 +30,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { Request } from 'src/request/schemas/request.schema';
+import { NotificationService } from 'src/notification/services/notification.service';
 
 @Injectable()
 export class UserService {
@@ -38,6 +39,7 @@ export class UserService {
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
     private jwtService: JwtService,
+    private notificationService: NotificationService,
     @InjectModel(Request.name) private requestModel: Model<Request>,
   ) {}
 
@@ -60,6 +62,17 @@ export class UserService {
       };
       const createUser = await this.userModel.create(updateData);
       createUser.password = undefined;
+
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Welcome 🤝',
+          body: 'You are welcome onboard',
+          userType: 'User',
+          user: `${createUser._id}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
 
       return createUser;
     } catch (error) {
@@ -142,6 +155,17 @@ export class UserService {
       user.isVerified = true;
       user.verificationOtp = null;
       await user.save();
+
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: OTP verified 🤝',
+          body: 'Your account has been verified',
+          userType: 'User',
+          user: `${user._id}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
 
       return { message: 'User verified successfully' };
     } catch (error) {
@@ -336,6 +360,17 @@ export class UserService {
         ...(logo && { logo }),
       };
 
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Profile Updated 🤝',
+          body: 'Your profile has been updated 👍👍',
+          userType: 'User',
+          user: `${user._id}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
+
       return await this.userModel.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId(userId) },
         { ...updateData, profileLink },
@@ -366,6 +401,17 @@ export class UserService {
 
       if (!request)
         throw new BadRequestException('Unable to create card request...');
+
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Card Request 🤝',
+          body: 'Your card request is successful 👍👍',
+          userType: 'User',
+          user: `${userId}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
       return request;
     } catch (error) {
       throw new HttpException(
