@@ -30,7 +30,7 @@ import {
 import { successResponse } from 'src/core/config/response';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
-import { CreateUserCardDto, LinkDto } from './dto/create-user-card.dto';
+import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { BadRequestErrorException } from 'src/core/common/filters/error-exceptions';
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { accountType } from './enum/user.enum';
