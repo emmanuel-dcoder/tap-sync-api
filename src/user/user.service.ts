@@ -31,6 +31,7 @@ import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { Request } from 'src/request/schemas/request.schema';
 import { NotificationService } from 'src/notification/services/notification.service';
+import { accountType } from './enum/user.enum';
 
 @Injectable()
 export class UserService {
@@ -91,7 +92,12 @@ export class UserService {
         throw new BadRequestException('Invalid email or password');
       }
 
-      const payload = { _id: user._id, email: user.email, sub: user._id };
+      const payload = {
+        _id: user._id,
+        email: user.email,
+        sub: user._id,
+        accountType: user.accountType,
+      };
 
       const token = this.jwtService.sign(payload);
 
@@ -320,6 +326,7 @@ export class UserService {
   }
 
   async updateUserCardProfile(
+    accountType: string,
     userId: string,
     createUserCardDto: CreateUserCardDto,
     files?: any,
@@ -348,7 +355,9 @@ export class UserService {
 
       if (user.profileLink === null || !user.profileLink) {
         do {
-          profileLink = `https://tapsync.com/${AlphaNumeric(3)}`;
+          accountType === 'company'
+            ? (profileLink = `https://tapsync.com/${user.name}/${AlphaNumeric(3, 'number')}`)
+            : (profileLink = `https://tapsync.com/${AlphaNumeric(3, 'number')}`);
           validateProfileLink = await this.userModel.findOne({ profileLink });
         } while (validateProfileLink);
       }
