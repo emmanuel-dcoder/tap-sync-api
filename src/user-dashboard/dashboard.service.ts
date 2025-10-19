@@ -104,6 +104,11 @@ export class UserDashboardService {
 
       const cardRequest = await this.requestModel.find({
         userId: new mongoose.Types.ObjectId(userId),
+        isStaff: false,
+      });
+      const activeStaffCard = await this.requestModel.find({
+        userId: new mongoose.Types.ObjectId(userId),
+        isStaff: true,
       });
 
       const taps = await this.tapsModel.find({
@@ -120,6 +125,7 @@ export class UserDashboardService {
       return {
         activeCards: cardRequest.length || 0,
         numberOfTaps: taps.length || 0,
+        activeStaffIdCard: activeStaffCard || 0,
         profileLink,
         accountType,
       };
