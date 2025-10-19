@@ -29,6 +29,7 @@ import { StaffService } from './staff.service';
 import { CreateStaffDto, NotifyStaffDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { employmentType, staffStatus } from './enum/staff.enum';
+import { RequestDto } from 'src/request/dto/create-request.dto';
 
 @Controller('api/v1/staff')
 @ApiTags('Onboarding Company Staff and Manageent')
@@ -107,14 +108,8 @@ export class StaffController {
     },
   ) {
     const user = req.user._id;
-    const accountType = req.user.accountType;
 
-    const data = await this.staffService.addStaff(
-      accountType,
-      user,
-      createStaffDto,
-      files,
-    );
+    const data = await this.staffService.addStaff(user, createStaffDto, files);
     return {
       message: 'Details added',
       code: HttpStatus.OK,
@@ -185,7 +180,7 @@ export class StaffController {
   @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
   @ApiResponse({ status: 200, description: 'Update successul' })
   @ApiResponse({ status: 400, description: 'Error performing task' })
-  async requestCard(
+  async updateStaff(
     @Query('id') id: string,
     @Body()
     updateSTaffDto: UpdateSTaffDto,
@@ -313,6 +308,64 @@ export class StaffController {
     const data = await this.staffService.addPoints(id, points);
     return {
       message: 'Points added successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
+  }
+
+  /** update user card details controller */
+  @Put('card-request')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Update user card details including links' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        businessName: {
+          type: 'string',
+          example: 'Johnson Ezekiel',
+          nullable: true,
+        },
+        description: {
+          type: 'string',
+          example: 'Short description here',
+          nullable: true,
+        },
+        quantity: {
+          type: 'number',
+          example: 1,
+          nullable: true,
+        },
+        brandColors: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['#FFFFFF', '#000000'],
+          nullable: true,
+        },
+        logo: { type: 'string', format: 'binary', nullable: true },
+      },
+    },
+  })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'logo', maxCount: 1 }]))
+  @ApiResponse({ status: 200, description: 'Card request successful' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async requestCard(
+    @Req() req: any,
+    @Body() requestDto: RequestDto,
+    @UploadedFiles()
+    files: {
+      logo?: Express.Multer.File[];
+    },
+  ) {
+    const user = req.user._id;
+
+    const data = await this.staffService.cardRequest(user, requestDto, files);
+
+    return {
+      message: 'Card request successful',
       code: HttpStatus.OK,
       status: 'success',
       data,

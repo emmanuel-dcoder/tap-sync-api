@@ -14,12 +14,15 @@ import * as csvParser from 'csv-parser';
 import { Readable } from 'stream';
 import { NotificationService } from 'src/notification/services/notification.service';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
+import { RequestDocument } from 'src/request/schemas/request.schema';
+import { RequestDto } from 'src/request/dto/create-request.dto';
 
 @Injectable()
 export class StaffService {
   constructor(
     @InjectModel(Staff.name) private staffModel: Model<StaffDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Request.name) private requestModel: Model<RequestDocument>,
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
     private readonly notificationService: NotificationService,
@@ -30,7 +33,6 @@ export class StaffService {
   }
 
   async addStaff(
-    accountType: string,
     companyId: string,
     createStaffDto: CreateStaffDto,
     files?: { picture?: Express.Multer.File[] },
@@ -301,17 +303,40 @@ export class StaffService {
     }
   }
 
-  private async uploadUserImage(file: Express.Multer.File) {
+  /**card request */
+  async cardRequest(userId: string, requestDto: RequestDto, files?: any) {
     try {
-      const uploadedFile = await this.cloudinaryService.uploadFile(
-        file,
-        'profile-image',
-      );
-      return uploadedFile.secure_url;
+      let logo: string | undefined;
+
+      if (files?.logo?.[0]) {
+        logo = await this.uploadUserImage(files.logo[0]);
+      }
+
+      const request = await this.requestModel.create({
+        ...requestDto,
+        logo,
+        userId: new mongoose.Types.ObjectId(userId),
+        isStaff: true,
+      });
+
+      if (!request)
+        throw new BadRequestException('Unable to create card request...');
+
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Staff Card Request 🤝',
+          body: 'Your card request for staff is successful 👍👍',
+          userType: 'User',
+          user: `${userId}`,
+        });
+      } catch (error) {
+        console.log('notification Error');
+      }
+      return request;
     } catch (error) {
       throw new HttpException(
-        error?.response?.message ?? error.message,
-        error?.status ?? 500,
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
       );
     }
   }
@@ -410,5 +435,20 @@ export class StaffService {
           );
         });
     });
+  }
+
+  private async uploadUserImage(file: Express.Multer.File) {
+    try {
+      const uploadedFile = await this.cloudinaryService.uploadFile(
+        file,
+        'profile-image',
+      );
+      return uploadedFile.secure_url;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error.message,
+        error?.status ?? 500,
+      );
+    }
   }
 }
