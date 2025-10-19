@@ -125,7 +125,7 @@ export class UserDashboardService {
       return {
         activeCards: cardRequest.length || 0,
         numberOfTaps: taps.length || 0,
-        activeStaffIdCard: activeStaffCard || 0,
+        activeStaffIdCard: activeStaffCard.length || 0,
         profileLink,
         accountType,
       };
