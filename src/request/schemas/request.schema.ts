@@ -22,6 +22,9 @@ export class Request {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: mongoose.Types.ObjectId;
+
+  @Prop({ type: Boolean, default: false })
+  isStaff: boolean;
 }
 
 export const RequestSchema = SchemaFactory.createForClass(Request);
