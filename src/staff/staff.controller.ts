@@ -107,8 +107,14 @@ export class StaffController {
     },
   ) {
     const user = req.user._id;
+    const accountType = req.user.accountType;
 
-    const data = await this.staffService.addStaff(user, createStaffDto, files);
+    const data = await this.staffService.addStaff(
+      accountType,
+      user,
+      createStaffDto,
+      files,
+    );
     return {
       message: 'Details added',
       code: HttpStatus.OK,

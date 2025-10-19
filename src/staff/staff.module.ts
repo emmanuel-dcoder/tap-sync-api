@@ -10,11 +10,13 @@ import {
   Notification,
   NotificationSchema,
 } from 'src/notification/schemas/notification.schema';
+import { User, UserSchema } from 'src/user/schemas/user.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Staff.name, schema: StaffSchema },
       { name: Notification.name, schema: NotificationSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [StaffController],

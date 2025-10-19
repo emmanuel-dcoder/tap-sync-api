@@ -13,11 +13,13 @@ import * as fs from 'fs';
 import * as csvParser from 'csv-parser';
 import { Readable } from 'stream';
 import { NotificationService } from 'src/notification/services/notification.service';
+import { User, UserDocument } from 'src/user/schemas/user.schema';
 
 @Injectable()
 export class StaffService {
   constructor(
     @InjectModel(Staff.name) private staffModel: Model<StaffDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
     private readonly notificationService: NotificationService,
@@ -28,6 +30,7 @@ export class StaffService {
   }
 
   async addStaff(
+    accountType: string,
     companyId: string,
     createStaffDto: CreateStaffDto,
     files?: { picture?: Express.Multer.File[] },
@@ -42,10 +45,13 @@ export class StaffService {
       let staffId;
       let validateId;
       let profileLink;
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(companyId),
+      });
 
       do {
-        staffId = AlphaNumeric(4);
-        profileLink = `https://tapsync.com/staff-${staffId}/company-${companyId}`;
+        staffId = AlphaNumeric(4, 'number');
+        profileLink = `https://tapsync.com/${user.name}/staff-${staffId}`;
         validateId = await this.staffModel.findOne({ staffId, profileLink });
       } while (validateId);
 
