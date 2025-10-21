@@ -85,7 +85,7 @@ export class StaffIdDto {
   @ApiProperty({
     type: String,
     example: '68e0becbaddb938aacc42acc',
-    description: 'staff MongoDB IDs',
+    description: 'staff ID',
   })
   @IsMongoId()
   staffId: string;
