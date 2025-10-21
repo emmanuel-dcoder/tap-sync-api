@@ -31,7 +31,6 @@ import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { Request } from 'src/request/schemas/request.schema';
 import { NotificationService } from 'src/notification/services/notification.service';
-import { accountType } from './enum/user.enum';
 
 @Injectable()
 export class UserService {
