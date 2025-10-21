@@ -30,4 +30,8 @@ export const envConfig = {
     key: process.env.STRIPE_SECRET_KEY,
     webhookSecret: process.env.WEBHOOK_SECRET,
   },
+  paystack: {
+    key: process.env.PAYSTACK_SECRET_KEY,
+    url: process.env.PAYSTACK_BASE_URL,
+  },
 };

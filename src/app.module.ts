@@ -10,6 +10,7 @@ import { UserDashboardModule } from './user-dashboard/dashboard.module';
 import { StaffModule } from './staff/staff.module';
 import { TicketModule } from './ticket/ticket.module';
 import { NotificationModule } from './notification/notification.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { NotificationModule } from './notification/notification.module';
     StaffModule,
     TicketModule,
     NotificationModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
