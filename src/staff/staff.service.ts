@@ -1,9 +1,9 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, mongo } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { Staff, StaffDocument } from './schemas/staff.schema';
-import { CreateStaffDto } from './dto/create-staff.dto';
+import { CreateStaffDto, StaffIdDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { employmentType, staffStatus } from './enum/staff.enum';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
@@ -15,8 +15,6 @@ import { Readable } from 'stream';
 import { NotificationService } from 'src/notification/services/notification.service';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { RequestDocument } from 'src/request/schemas/request.schema';
-import { RequestDto } from 'src/request/dto/create-request.dto';
-
 @Injectable()
 export class StaffService {
   constructor(
@@ -303,19 +301,24 @@ export class StaffService {
     }
   }
 
-  /**card request */
-  async cardRequest(userId: string, requestDto: RequestDto, files?: any) {
+  /**staff card request */
+  async cardRequest(userId: string, staffIdDto: StaffIdDto) {
     try {
-      let logo: string | undefined;
+      const { staffId } = staffIdDto;
+      const staff = await this.staffModel.findOne({
+        _id: new mongoose.Types.ObjectId(staffId),
+      });
 
-      if (files?.logo?.[0]) {
-        logo = await this.uploadUserImage(files.logo[0]);
-      }
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
 
       const request = await this.requestModel.create({
-        ...requestDto,
-        logo,
+        businessName: user.name,
+        logo: staff.image,
+        brandColors: user.backgroundColor,
         userId: new mongoose.Types.ObjectId(userId),
+        staffId: new mongoose.Types.ObjectId(staffId),
         isStaff: true,
       });
 

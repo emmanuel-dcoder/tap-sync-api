@@ -80,3 +80,13 @@ export class NotifyStaffDto {
   @MinLength(3, { message: 'Message must be at least 3 characters long' })
   message: string;
 }
+
+export class StaffIdDto {
+  @ApiProperty({
+    type: String,
+    example: '68e0becbaddb938aacc42acc',
+    description: 'staff MongoDB IDs',
+  })
+  @IsMongoId()
+  staffId: string;
+}

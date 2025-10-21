@@ -26,7 +26,11 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { StaffService } from './staff.service';
-import { CreateStaffDto, NotifyStaffDto } from './dto/create-staff.dto';
+import {
+  CreateStaffDto,
+  NotifyStaffDto,
+  StaffIdDto,
+} from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { employmentType, staffStatus } from './enum/staff.enum';
 import { RequestDto } from 'src/request/dto/create-request.dto';
@@ -319,50 +323,14 @@ export class StaffController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Update user card details including links' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        businessName: {
-          type: 'string',
-          example: 'Johnson Ezekiel',
-          nullable: true,
-        },
-        description: {
-          type: 'string',
-          example: 'Short description here',
-          nullable: true,
-        },
-        quantity: {
-          type: 'number',
-          example: 1,
-          nullable: true,
-        },
-        brandColors: {
-          type: 'array',
-          items: { type: 'string' },
-          example: ['#FFFFFF', '#000000'],
-          nullable: true,
-        },
-        logo: { type: 'string', format: 'binary', nullable: true },
-      },
-    },
-  })
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'logo', maxCount: 1 }]))
+  @ApiOperation({ summary: 'Request for staff id Card' })
+  @ApiBody({ type: StaffIdDto })
   @ApiResponse({ status: 200, description: 'Card request successful' })
   @ApiResponse({ status: 400, description: 'Error performing task' })
-  async requestCard(
-    @Req() req: any,
-    @Body() requestDto: RequestDto,
-    @UploadedFiles()
-    files: {
-      logo?: Express.Multer.File[];
-    },
-  ) {
+  async requestCard(@Req() req: any, @Body() staffIdDto: StaffIdDto) {
     const user = req.user._id;
 
-    const data = await this.staffService.cardRequest(user, requestDto, files);
+    const data = await this.staffService.cardRequest(user, staffIdDto);
 
     return {
       message: 'Card request successful',
