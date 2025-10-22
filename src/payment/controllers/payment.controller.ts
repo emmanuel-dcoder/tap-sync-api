@@ -107,6 +107,7 @@ export class PaymentController {
       await this.orderService.createOrder({
         userId: `${transaction.userId}`,
         duration: transaction.duration,
+        paymentType: transaction.paymentType,
       });
     }
 

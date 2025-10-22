@@ -6,14 +6,21 @@ export class Order extends Document {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default: null })
   startDate: Date;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default: null })
   endDate: Date;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default: null })
   durationInMonths: number;
+
+  @Prop({
+    required: true,
+    enum: ['card', 'subscription'],
+    default: null,
+  })
+  paymentType: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

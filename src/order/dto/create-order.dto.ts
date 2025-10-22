@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsMongoId } from 'class-validator';
+import { IsString, IsNumber, IsMongoId, IsOptional } from 'class-validator';
 
 export class CreateOrderDto {
   @ApiProperty({
@@ -15,4 +15,11 @@ export class CreateOrderDto {
   })
   @IsNumber()
   duration: number;
+
+  @ApiProperty({
+    description: 'payment type can be either subscription or card',
+    example: 'card',
+  })
+  @IsString()
+  paymentType: string;
 }
