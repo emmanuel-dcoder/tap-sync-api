@@ -37,6 +37,7 @@ export class PaymentService {
           email,
           amount: totalAmount * 100,
           reference,
+          callback_url: `https://tapsync.com/payment/verify`,
         },
         {
           headers: {
