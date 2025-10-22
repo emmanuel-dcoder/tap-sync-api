@@ -21,7 +21,7 @@ import { CreatePaymentDto } from '../dto/create-payment.dto';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 
 @ApiTags('Payment')
-@Controller('payment')
+@Controller('api/v1/payment')
 export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
