@@ -13,7 +13,7 @@ import { envConfig } from 'src/core/config/env.config';
 export class PaymentService {
   constructor(private readonly transactionService: TransactionService) {}
 
-  async initializePayment(payload: CreatePaymentDto) {
+  async initializePayment(payload: CreatePaymentDto & { userId: string }) {
     const { userId, email, amount, duration, numberOfCards, paymentType } =
       payload;
 

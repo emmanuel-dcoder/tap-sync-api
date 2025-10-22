@@ -3,14 +3,6 @@ import { IsString, IsNumber, IsEmail, IsOptional } from 'class-validator';
 
 export class CreatePaymentDto {
   @ApiProperty({
-    description: 'ID of the user',
-    example: '68f8c09578070fe5d26bc58c',
-  })
-  @IsString()
-  @IsOptional()
-  userId?: string;
-
-  @ApiProperty({
     description: 'Email of the user',
     example: 'test@gmail.com',
   })
