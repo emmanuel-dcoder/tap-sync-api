@@ -29,7 +29,7 @@ import { StaffService } from './staff.service';
 import {
   CreateStaffDto,
   NotifyStaffDto,
-  StaffIdDto,
+  StaffIdsDto,
 } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { employmentType, staffStatus } from './enum/staff.enum';
@@ -318,19 +318,18 @@ export class StaffController {
     };
   }
 
-  /** update user card details controller */
   @Put('card-request')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Request for staff id Card' })
-  @ApiBody({ type: StaffIdDto })
-  @ApiResponse({ status: 200, description: 'Card request successful' })
+  @ApiConsumes('application/json')
+  @ApiOperation({ summary: 'Request for multiple staff ID cards' })
+  @ApiBody({ type: StaffIdsDto })
+  @ApiResponse({ status: 200, description: 'Card requests successful' })
   @ApiResponse({ status: 400, description: 'Error performing task' })
-  async requestCard(@Req() req: any, @Body() staffIdDto: StaffIdDto) {
-    const user = req.user._id;
+  async requestCard(@Req() req: any, @Body() staffIdsDto: StaffIdsDto) {
+    const userId = req.user._id;
 
-    const data = await this.staffService.cardRequest(user, staffIdDto);
+    const data = await this.staffService.cardRequest(userId, staffIdsDto);
 
     return {
       message: 'Card request successful',

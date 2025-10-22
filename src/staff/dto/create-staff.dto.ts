@@ -81,12 +81,14 @@ export class NotifyStaffDto {
   message: string;
 }
 
-export class StaffIdDto {
+export class StaffIdsDto {
   @ApiProperty({
-    type: String,
-    example: '68e0becbaddb938aacc42acc',
-    description: 'staff ID',
+    type: [String],
+    example: ['68e0becbaddb938aacc42acc', '68e0becbaddb938aacc42ace'],
+    description: 'Array of staff IDs',
   })
-  @IsMongoId()
-  staffId: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsMongoId({ each: true })
+  staffIds: string[];
 }

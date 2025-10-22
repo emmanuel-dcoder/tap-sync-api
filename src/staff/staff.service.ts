@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { Staff, StaffDocument } from './schemas/staff.schema';
-import { CreateStaffDto, StaffIdDto } from './dto/create-staff.dto';
+import { CreateStaffDto, StaffIdsDto } from './dto/create-staff.dto';
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { employmentType, staffStatus } from './enum/staff.enum';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
@@ -301,41 +301,63 @@ export class StaffService {
     }
   }
 
-  /**staff card request */
-  async cardRequest(userId: string, staffIdDto: StaffIdDto) {
+  /** staff card request */
+  async cardRequest(userId: string, staffIdsDto: StaffIdsDto) {
     try {
-      const { staffId } = staffIdDto;
-      const staff = await this.staffModel.findOne({
-        _id: new mongoose.Types.ObjectId(staffId),
-      });
+      const { staffIds } = staffIdsDto;
 
       const user = await this.userModel.findOne({
         _id: new mongoose.Types.ObjectId(userId),
       });
 
-      const request = await this.requestModel.create({
-        businessName: user.name,
-        logo: staff.image,
-        brandColors: user.backgroundColor,
-        userId: new mongoose.Types.ObjectId(userId),
-        staffId: new mongoose.Types.ObjectId(staffId),
-        isStaff: true,
-      });
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
 
-      if (!request)
-        throw new BadRequestException('Unable to create card request...');
+      const requests = [];
+
+      for (const id of staffIds) {
+        const staff = await this.staffModel.findOne({
+          _id: new mongoose.Types.ObjectId(id),
+        });
+
+        if (!staff) {
+          console.warn(`Staff with ID ${id} not found — skipping`);
+          continue;
+        }
+
+        const request = await this.requestModel.create({
+          businessName: user.name,
+          logo: staff.image,
+          brandColors: user.backgroundColor,
+          userId: new mongoose.Types.ObjectId(userId),
+          staffId: new mongoose.Types.ObjectId(id),
+          isStaff: true,
+        });
+
+        if (request) {
+          requests.push(request);
+        }
+      }
+
+      if (!requests.length) {
+        throw new BadRequestException('No valid staff found for card request');
+      }
 
       try {
         await this.notificationService.create({
           title: 'Tapsync: Staff Card Request 🤝',
-          body: 'Your card request for staff is successful 👍👍',
+          body: `Your card request for ${requests.length} staff ${
+            requests.length > 1 ? 'members' : 'member'
+          } was successful 👍👍`,
           userType: 'User',
           user: `${userId}`,
         });
       } catch (error) {
-        console.log('notification Error');
+        console.log('Notification Error:', error.message);
       }
-      return request;
+
+      return requests;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
