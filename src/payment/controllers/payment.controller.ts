@@ -30,7 +30,7 @@ export class PaymentController {
 
   /**
    * Initialize a new payment with Paystack.
-   * Creates a pending transaction and returns a payment URL.
+   * Creates a pending transaction and returning a payment URL.
    */
   @Post('initialize')
   @ApiBearerAuth()
