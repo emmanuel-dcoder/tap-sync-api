@@ -1,15 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsEmail } from 'class-validator';
+import { IsString, IsNumber, IsEmail, IsOptional } from 'class-validator';
 
 export class CreatePaymentDto {
   @ApiProperty({
     description: 'ID of the user',
+    example: '68f8c09578070fe5d26bc58c',
   })
   @IsString()
-  userId: string;
+  @IsOptional()
+  userId?: string;
 
   @ApiProperty({
     description: 'Email of the user',
+    example: 'test@gmail.com',
   })
   @IsString()
   @IsEmail()
@@ -17,15 +20,32 @@ export class CreatePaymentDto {
 
   @ApiProperty({
     description: 'amount of the transaction',
-    example: 34000,
+    example: 4000,
   })
   @IsNumber()
   amount: number;
 
   @ApiProperty({
-    description: 'duration of the month',
+    description:
+      'This is optional, only compulsory for subscription payment type',
     example: 1,
   })
+  @IsOptional()
   @IsNumber()
   duration: number;
+
+  @ApiProperty({
+    description: 'type of payment can be either subscription or card ',
+    enum: ['card', 'subscription'],
+  })
+  @IsString()
+  paymentType: string;
+
+  @ApiProperty({
+    description: 'this is optional, only compulsory for card payment type',
+    example: 1,
+  })
+  @IsOptional()
+  @IsNumber()
+  numberOfCards: number;
 }

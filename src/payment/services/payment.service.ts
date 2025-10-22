@@ -1,4 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  BadRequestException,
+} from '@nestjs/common';
 import axios from 'axios';
 import { TransactionService } from 'src/transaction/services/transaction.service';
 import { CreatePaymentDto } from '../dto/create-payment.dto';
@@ -9,17 +14,29 @@ export class PaymentService {
   constructor(private readonly transactionService: TransactionService) {}
 
   async initializePayment(payload: CreatePaymentDto) {
-    const { userId, email, amount, duration } = payload;
-    const reference = `TX-${Date.now()}`;
+    const { userId, email, amount, duration, numberOfCards, paymentType } =
+      payload;
 
+    if (paymentType === 'card' && !numberOfCards)
+      throw new BadRequestException(
+        'number field cannot be empty for card payment type',
+      );
+
+    if (paymentType === 'subscription' && !duration)
+      throw new BadRequestException(
+        'duration field cannot be empty for subscription payment type',
+      );
+
+    const reference = `TX-${Date.now()}`;
+    const totalAmount =
+      paymentType === 'card' ? numberOfCards * amount : amount;
     try {
       const response = await axios.post(
         `${envConfig.paystack.url}/transaction/initialize`,
         {
           email,
-          amount: amount * 100,
+          amount: totalAmount * 100,
           reference,
-          // callback_url: `${envConfig.paystack.key}/api/payment/verify`,
         },
         {
           headers: {
@@ -32,8 +49,10 @@ export class PaymentService {
       await this.transactionService.createTransaction({
         userId,
         reference,
-        amount,
+        amount: totalAmount,
         duration,
+        paymentType,
+        numberOfCards,
       });
 
       return response.data.data;

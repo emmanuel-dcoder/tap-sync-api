@@ -1,14 +1,24 @@
-import { Controller, Post, Body, Headers, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
   ApiHeader,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PaymentService } from '../services/payment.service';
 import { OrderService } from 'src/order/services/order.service';
 import { CreatePaymentDto } from '../dto/create-payment.dto';
+import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 
 @ApiTags('Payment')
 @Controller('payment')
@@ -23,6 +33,8 @@ export class PaymentController {
    * Creates a pending transaction and returns a payment URL.
    */
   @Post('initialize')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Initialize payment with Paystack',
     description:
@@ -47,8 +59,10 @@ export class PaymentController {
     },
   })
   @ApiResponse({ status: 400, description: 'Invalid request payload' })
-  async initialize(@Body() body: CreatePaymentDto) {
-    return this.paymentService.initializePayment(body);
+  async initialize(@Body() body: CreatePaymentDto, @Req() req: any) {
+    const userId = req.user?._id;
+
+    return this.paymentService.initializePayment({ userId, ...body });
   }
 
   /**

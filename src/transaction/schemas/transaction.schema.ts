@@ -19,8 +19,18 @@ export class Transaction extends Document {
   })
   status: string;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    enum: ['card', 'subscription'],
+    default: null,
+  })
+  paymentType: string;
+
+  @Prop({ required: false })
   duration: number;
+
+  @Prop({ required: false })
+  numberOfCards: number;
 
   @Prop({ default: 'paystack' })
   paymentMethod: string;
