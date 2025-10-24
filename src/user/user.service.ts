@@ -140,6 +140,7 @@ export class UserService {
         username: user.username,
         profileImage: user.profileImage,
         phone: user.phone,
+        isSubscribe: user.isSubscribe,
       };
     } catch (error) {
       throw new HttpException(
