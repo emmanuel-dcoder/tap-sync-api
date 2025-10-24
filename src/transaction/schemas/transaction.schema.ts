@@ -26,10 +26,10 @@ export class Transaction extends Document {
   })
   paymentType: string;
 
-  @Prop({ required: false })
+  @Prop({ required: false, default: null })
   duration: number;
 
-  @Prop({ required: false })
+  @Prop({ required: false, default: null })
   numberOfCards: number;
 
   @Prop({ default: 'paystack' })

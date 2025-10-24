@@ -35,7 +35,7 @@ export class CreateTransactionDto {
   })
   @IsOptional()
   @IsNumber()
-  duration: number;
+  duration?: number;
 
   @ApiProperty({
     description: 'this is optional, only compulsory for card payment type',
@@ -43,5 +43,5 @@ export class CreateTransactionDto {
   })
   @IsOptional()
   @IsNumber()
-  numberOfCards: number;
+  numberOfCards?: number;
 }

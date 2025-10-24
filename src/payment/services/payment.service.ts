@@ -8,14 +8,19 @@ import axios from 'axios';
 import { TransactionService } from 'src/transaction/services/transaction.service';
 import { CreatePaymentDto } from '../dto/create-payment.dto';
 import { envConfig } from 'src/core/config/env.config';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from 'src/user/schemas/user.schema';
+import mongoose, { Model } from 'mongoose';
 
 @Injectable()
 export class PaymentService {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+  ) {}
 
   async initializePayment(payload: CreatePaymentDto & { userId: string }) {
-    const { userId, email, amount, duration, numberOfCards, paymentType } =
-      payload;
+    const { userId, duration, numberOfCards, paymentType } = payload;
 
     if (paymentType === 'card' && !numberOfCards)
       throw new BadRequestException(
@@ -27,6 +32,13 @@ export class PaymentService {
         'duration field cannot be empty for subscription payment type',
       );
 
+    const user = await this.userModel.findOne({
+      _id: new mongoose.Types.ObjectId(userId),
+    });
+
+    if (!user) throw new BadRequestException('Invalid User');
+
+    const amount = paymentType === 'card' ? 4000 : 10000;
     const reference = `TX-${Date.now()}`;
     const totalAmount =
       paymentType === 'card' ? numberOfCards * amount : amount;
@@ -34,7 +46,7 @@ export class PaymentService {
       const response = await axios.post(
         `${envConfig.paystack.url}/transaction/initialize`,
         {
-          email,
+          email: user.email,
           amount: totalAmount * 100,
           reference,
           callback_url: `https://tapsync.com/payment/verify`,
