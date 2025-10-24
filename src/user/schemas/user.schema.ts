@@ -83,6 +83,9 @@ export class User {
   @Prop({ required: true, default: false })
   isVerified: boolean;
 
+  @Prop({ required: true, default: false })
+  isSubscribe: boolean;
+
   @Prop({ type: String, enum: accountType, default: null, required: true })
   accountType: accountType;
 

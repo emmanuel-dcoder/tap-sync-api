@@ -92,6 +92,17 @@ export class PaymentService {
         reference,
         'success',
       );
+      let user;
+      user =
+        transaction.paymentType === 'subscription'
+          ? await this.userModel.findOneAndUpdate(
+              {
+                _id: new mongoose.Types.ObjectId(transaction.userId),
+              },
+              { isSubscribe: true },
+            )
+          : {};
+
       return transaction;
     }
   }
