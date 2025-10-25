@@ -303,6 +303,7 @@ export class UserService {
         businessEmail: user.businessEmail,
         businessPhoneNumber: user.businessPhoneNumber,
         businessUsername: user.businessUsername,
+        isSubscribe: user.isSubscribe,
         name: user.name,
         email: user.email,
         phone: user.phone,
