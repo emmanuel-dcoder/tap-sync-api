@@ -11,12 +11,15 @@ import { envConfig } from 'src/core/config/env.config';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
-
+import { NotificationService } from 'src/notification/services/notification.service';
+import { MailService } from 'src/core/mail/email';
 @Injectable()
 export class PaymentService {
   constructor(
     private readonly transactionService: TransactionService,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly notificationService: NotificationService,
+    private readonly mailService: MailService,
   ) {}
 
   async initializePayment(payload: CreatePaymentDto & { userId: string }) {
@@ -92,16 +95,35 @@ export class PaymentService {
         reference,
         'success',
       );
-      let user;
-      user =
-        transaction.paymentType === 'subscription'
-          ? await this.userModel.findOneAndUpdate(
-              {
-                _id: new mongoose.Types.ObjectId(transaction.userId),
-              },
-              { isSubscribe: true },
-            )
-          : {};
+      let user = await this.userModel.findOne({ _id: transaction.userId });
+
+      if (transaction.paymentType === 'subscription') {
+        await this.userModel.findOneAndUpdate(
+          {
+            _id: new mongoose.Types.ObjectId(transaction.userId),
+          },
+          { isSubscribe: true },
+        );
+      }
+      try {
+        await this.notificationService.create({
+          title: 'Tapsync: Payment Verfication 💰💰',
+          body: `Your payment for ${transaction.paymentType} is successful 👍👍`,
+          userType: 'User',
+          user: `${transaction.userId}`,
+        });
+
+        await this.mailService.sendMailNotification(
+          user.email,
+          'Tapsync: Payment Verfication 💰💰',
+          {
+            message: `Your payment for ${transaction.paymentType} is successful 👍👍`,
+          },
+          'payment',
+        );
+      } catch (error) {
+        console.log('notfication error', error);
+      }
 
       return transaction;
     }
