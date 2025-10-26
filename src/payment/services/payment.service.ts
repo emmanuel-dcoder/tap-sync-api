@@ -128,4 +128,17 @@ export class PaymentService {
       return transaction;
     }
   }
+
+  async getTransactionByReference(reference: string) {
+    const transaction =
+      await this.transactionService.findByReference(reference);
+
+    if (!transaction) {
+      throw new BadRequestException(
+        'Transaction not found or invalid reference',
+      );
+    }
+
+    return transaction;
+  }
 }

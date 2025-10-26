@@ -6,6 +6,8 @@ import {
   Req,
   Res,
   UseGuards,
+  Param,
+  Get,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,6 +16,7 @@ import {
   ApiBody,
   ApiHeader,
   ApiBearerAuth,
+  ApiParam,
 } from '@nestjs/swagger';
 import { PaymentService } from '../services/payment.service';
 import { OrderService } from 'src/order/services/order.service';
@@ -112,5 +115,46 @@ export class PaymentController {
     }
 
     return res.status(200).json({ received: true });
+  }
+
+  /**
+   * Get a transaction by reference.
+   * Returns details of a single transaction using its Paystack reference.
+   */
+  @Get('transaction/:reference')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Fetch a transaction by reference',
+    description:
+      'Retrieves a single transaction using its unique reference code.',
+  })
+  @ApiParam({
+    name: 'reference',
+    required: true,
+    description: 'The unique reference code of the transaction',
+    example: 'TX-1697733214000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction retrieved successfully.',
+    schema: {
+      example: {
+        _id: '672c39a8fc13ae18be000001',
+        userId: '672c398efc13ae18be000000',
+        reference: 'TX-1697733214000',
+        amount: 10000,
+        paymentType: 'subscription',
+        status: 'success',
+        createdAt: '2025-10-26T09:12:10.000Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid or missing reference',
+  })
+  async getTransactionByReference(@Param('reference') reference: string) {
+    return this.paymentService.getTransactionByReference(reference);
   }
 }
