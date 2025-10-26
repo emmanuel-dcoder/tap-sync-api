@@ -122,8 +122,6 @@ export class PaymentController {
    * Returns details of a single transaction using its Paystack reference.
    */
   @Get('transaction/:reference')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Fetch a transaction by reference',
     description:
