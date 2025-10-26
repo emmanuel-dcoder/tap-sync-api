@@ -52,7 +52,7 @@ export class PaymentService {
           email: user.email,
           amount: totalAmount * 100,
           reference,
-          callback_url: `https://tapsync.com/payment/verify`,
+          callback_url: `https://tapsync-userdashboard.vercel.app/payment-callback`,
         },
         {
           headers: {
