@@ -12,6 +12,7 @@ import {
   Get,
   Patch,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
 
 import {
@@ -34,6 +35,7 @@ import {
 import { UpdateSTaffDto } from './dto/update-staff.dto';
 import { employmentType, staffStatus } from './enum/staff.enum';
 import { RequestDto } from 'src/request/dto/create-request.dto';
+import { successResponse } from 'src/core/config/response';
 
 @Controller('api/v1/staff')
 @ApiTags('Onboarding Company Staff and Manageent')
@@ -394,11 +396,29 @@ export class StaffController {
       files.file[0],
     );
 
-    return {
+    return successResponse({
       message: 'CSV processed successfully',
       code: HttpStatus.OK,
       status: 'success',
       data: result,
-    };
+    });
+  }
+
+  //get staff messagae
+  @Get('message/:id')
+  @ApiOperation({ summary: 'Get staff messages' })
+  @ApiResponse({
+    status: 200,
+    description: 'Message retrieved successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Message not found' })
+  async findOne(@Param('id') id: string) {
+    const data = await this.staffService.staffMessagae(id);
+    return successResponse({
+      message: 'Message retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 }

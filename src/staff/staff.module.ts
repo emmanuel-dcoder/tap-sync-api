@@ -12,6 +12,7 @@ import {
 } from 'src/notification/schemas/notification.schema';
 import { User, UserSchema } from 'src/user/schemas/user.schema';
 import { RequestSchema } from 'src/request/schemas/request.schema';
+import { Message, MessageSchema } from 'src/message/schemas/message.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -19,6 +20,7 @@ import { RequestSchema } from 'src/request/schemas/request.schema';
       { name: Notification.name, schema: NotificationSchema },
       { name: User.name, schema: UserSchema },
       { name: Request.name, schema: RequestSchema },
+      { name: Message.name, schema: MessageSchema },
     ]),
   ],
   controllers: [StaffController],

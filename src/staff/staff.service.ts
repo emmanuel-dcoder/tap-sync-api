@@ -15,6 +15,8 @@ import { Readable } from 'stream';
 import { NotificationService } from 'src/notification/services/notification.service';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { RequestDocument } from 'src/request/schemas/request.schema';
+import { Message } from 'src/message/schemas/message.schema';
+import { NotFoundErrorException } from 'src/core/common/filters/error-exceptions';
 @Injectable()
 export class StaffService {
   constructor(
@@ -24,6 +26,7 @@ export class StaffService {
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
     private readonly notificationService: NotificationService,
+    @InjectModel(Message.name) private messageModel: Model<Message>,
   ) {}
 
   private toObjectId(id: string) {
@@ -285,6 +288,12 @@ export class StaffService {
             { message, name: staff.name },
             'message',
           );
+
+          await this.messageModel.create({
+            staffId: staff._id,
+            userId: staff.companyId,
+            content: message,
+          });
           console.log(`Sending email to ${staff.email}`);
         }),
       );
@@ -460,6 +469,23 @@ export class StaffService {
           );
         });
     });
+  }
+
+  //***Get staff message */
+  async staffMessagae(id: string) {
+    try {
+      const message = await this.messageModel.find({
+        staffId: new mongoose.Types.ObjectId(id),
+      });
+
+      if (!message) throw new NotFoundErrorException('message not found');
+      return message;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
   }
 
   private async uploadUserImage(file: Express.Multer.File) {
