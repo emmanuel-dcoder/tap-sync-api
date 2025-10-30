@@ -6,13 +6,21 @@ import {
   Get,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { successResponse } from 'src/core/config/response';
 
 import { AdminService } from './admin.service';
 import { AdminLoginDto, CreateAdminDto } from './dto/create-admin.dto';
+import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 
 @Controller('api/v1/admin')
 @ApiTags('Admin')
@@ -55,6 +63,8 @@ export class AdminController {
     });
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('logged-in')
   @ApiOperation({ summary: 'Get logged in admin' })
   @ApiResponse({ status: 200, description: 'Admin retrieved successfully' })

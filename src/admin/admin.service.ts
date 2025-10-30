@@ -10,20 +10,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import {
   comparePassword,
-  generateAccessToken,
   hashPassword,
 } from 'src/core/common/utils/authentication';
-import { Admin } from './schemas/admin.schema';
-import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
-import { MailService } from 'src/core/mail/email';
+import { Admin, AdminDocument } from './schemas/admin.schema';
 import { AdminLoginDto, CreateAdminDto } from './dto/create-admin.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AdminService {
   constructor(
-    @InjectModel(Admin.name) private adminModel: Model<Admin>,
-    private readonly cloudinaryService: CloudinaryService,
-    private readonly mailService: MailService,
+    @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
+    private jwtService: JwtService,
   ) {}
 
   async createAdmin(adminDto: CreateAdminDto) {
@@ -90,20 +87,20 @@ export class AdminService {
         throw new BadRequestException('Invalid email or password');
       }
 
-      const token = generateAccessToken({
+      const payload = {
         _id: admin._id,
-        accountType: admin.accountType,
-      });
+        email: admin.email,
+        sub: admin._id,
+      };
+
+      const token = this.jwtService.sign(payload);
 
       return {
-        admin: {
+        user: {
           _id: admin._id,
           email: admin.email,
-          firstName: admin.firstName,
-          lastName: admin.lastName,
-          accountType: admin.accountType,
+          token,
         },
-        token,
       };
     } catch (error) {
       throw new HttpException(
@@ -135,43 +132,6 @@ export class AdminService {
         accountType: admin.accountType,
         profileImage: admin.profileImage,
       };
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  async uploadProfilePicture(userId: string, file: Express.Multer.File) {
-    try {
-      const user = await this.adminModel.findOne({
-        _id: new mongoose.Types.ObjectId(userId),
-      });
-      if (!user) throw new NotFoundException('User not found');
-      const uploadImage = await this.uploadUserImage(file);
-      user.profileImage = uploadImage;
-
-      await user.save();
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  private async uploadUserImage(file: Express.Multer.File | undefined) {
-    try {
-      if (!file) {
-        return null;
-      }
-      const uploadedFile = await this.cloudinaryService.uploadFile(
-        file,
-        'profile-image',
-      );
-
-      return uploadedFile.secure_url;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
