@@ -225,7 +225,7 @@ export class AdminDashboardService {
     return {
       companyRequests,
       individualRequests,
-      totalRequests: companyRequests + individualRequests,
+      totalCardsRequests: companyRequests + individualRequests,
     };
   }
 }
