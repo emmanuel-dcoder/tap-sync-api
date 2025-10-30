@@ -96,7 +96,7 @@ export class AdminService {
       const token = this.jwtService.sign(payload);
 
       return {
-        user: {
+        admin: {
           _id: admin._id,
           email: admin.email,
           token,

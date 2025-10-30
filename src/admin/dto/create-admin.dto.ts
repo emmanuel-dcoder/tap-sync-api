@@ -2,36 +2,36 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString } from 'class-validator';
 
 export class CreateAdminDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'test' })
   @IsString()
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'admin' })
   @IsString()
   lastName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'secret' })
   @IsString()
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'testadmin@gmail.com' })
   @IsString()
   @IsEmail()
   email: string;
 }
 
 export class ForgotAdminPasswordDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'testadmin@gmail.com' })
   @IsEmail()
   email: string;
 }
 
 export class AdminLoginDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'testadmin@gmail.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'secret' })
   @IsString()
   password: string;
 }

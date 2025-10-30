@@ -11,14 +11,16 @@ import { StaffModule } from './staff/staff.module';
 import { TicketModule } from './ticket/ticket.module';
 import { NotificationModule } from './notification/notification.module';
 import { PaymentModule } from './payment/payment.module';
+import { AdminDashboardModule } from './admin-dashboard/dashboard.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(envConfig.database.mongo_url),
+    AdminDashboardModule,
+    UserDashboardModule,
     AdminModule,
     UserModule,
     TapsModule,
-    UserDashboardModule,
     StaffModule,
     TicketModule,
     NotificationModule,
