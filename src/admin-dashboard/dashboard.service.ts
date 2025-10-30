@@ -21,7 +21,7 @@ export class AdminDashboardService {
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
 
-    // Step 1: Aggregate successful transactions per month
+    // Step 1: Aggregate successful transactions by month, summing total amount
     const transactions = await this.transactionModel.aggregate([
       {
         $match: {
@@ -35,7 +35,7 @@ export class AdminDashboardService {
             year: { $year: '$createdAt' },
             month: { $month: '$createdAt' },
           },
-          count: { $sum: 1 },
+          totalAmount: { $sum: '$amount' }, // sum of amounts instead of count
         },
       },
       {
@@ -43,7 +43,7 @@ export class AdminDashboardService {
       },
     ]);
 
-    // Step 2: Prepare month names
+    // Step 2: Month names for display
     const monthNames = [
       'January',
       'February',
@@ -59,8 +59,8 @@ export class AdminDashboardService {
       'December',
     ];
 
-    // Step 3: Generate the last 12 months with counts
-    const months: { month: string; count: number }[] = [];
+    // Step 3: Fill in all months (including those without data)
+    const months: { month: string; totalAmount: number }[] = [];
     const currentDate = new Date();
 
     for (let i = 11; i >= 0; i--) {
@@ -71,14 +71,13 @@ export class AdminDashboardService {
       const month = date.getMonth() + 1;
       const monthName = `${monthNames[date.getMonth()]} ${year}`;
 
-      // Find if this month/year exists in aggregation result
       const matched = transactions.find(
         (t) => t._id.year === year && t._id.month === month,
       );
 
       months.push({
         month: monthName,
-        count: matched ? matched.count : 0,
+        totalAmount: matched ? matched.totalAmount : 0,
       });
     }
 
