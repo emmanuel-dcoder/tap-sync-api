@@ -95,7 +95,7 @@ export class AdminDashboardController {
   /**
    * GET: /admin-dashboard/requests/account-type-summary
    */
-  @Get('requests/account-type-summary')
+  @Get('requests/cards')
   @ApiOperation({ summary: 'Get total requests grouped by user account type' })
   @ApiResponse({
     status: 200,
@@ -106,7 +106,7 @@ export class AdminDashboardController {
       await this.adminDashboardService.getRequestAccountTypeSummary();
 
     return successResponse({
-      message: 'Company and individual users count',
+      message: 'Card request fetch',
       code: HttpStatus.OK,
       status: 'success',
       data,
