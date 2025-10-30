@@ -91,4 +91,25 @@ export class AdminDashboardController {
       data,
     });
   }
+
+  /**
+   * GET: /admin-dashboard/requests/account-type-summary
+   */
+  @Get('requests/account-type-summary')
+  @ApiOperation({ summary: 'Get total requests grouped by user account type' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns request counts for company and individual users',
+  })
+  async getRequestAccountSummary() {
+    const data =
+      await this.adminDashboardService.getRequestAccountTypeSummary();
+
+    return successResponse({
+      message: 'Company and individual users count',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 }

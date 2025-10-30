@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Request, RequestDocument } from 'src/request/schemas/request.schema';
 import { Transaction } from 'src/transaction/schemas/transaction.schema';
 import { User } from 'src/user/schemas/user.schema';
 
@@ -9,9 +10,10 @@ export class AdminDashboardService {
   constructor(
     @InjectModel(Transaction.name)
     private readonly transactionModel: Model<Transaction>,
-
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
+    @InjectModel(Request.name)
+    private readonly requestModel: Model<RequestDocument>,
   ) {}
 
   /**
@@ -191,5 +193,39 @@ export class AdminDashboardService {
     }, {});
 
     return summary;
+  }
+
+  /**
+   * Get total requests made by users with accountType 'company' or 'individual'
+   */
+  async getRequestAccountTypeSummary() {
+    const result = await this.requestModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $group: {
+          _id: '$user.accountType',
+          totalRequests: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const companyRequests =
+      result.find((r) => r._id === 'company')?.totalRequests || 0;
+    const individualRequests =
+      result.find((r) => r._id === 'individual')?.totalRequests || 0;
+
+    return {
+      companyRequests,
+      individualRequests,
+      totalRequests: companyRequests + individualRequests,
+    };
   }
 }
