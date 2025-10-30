@@ -89,15 +89,20 @@ export class AdminDashboardService {
    * (Only for successful transactions)
    */
   async getMonthlyTransactionPercentageChange() {
-    const twelveMonthsAgo = new Date();
-    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+    const now = new Date();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfPreviousMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      1,
+    );
 
-    // Group total transaction amount per month
+    // Aggregate total amount for current and previous month
     const monthlyData = await this.transactionModel.aggregate([
       {
         $match: {
           status: 'success',
-          createdAt: { $gte: twelveMonthsAgo },
+          createdAt: { $gte: startOfPreviousMonth },
         },
       },
       {
@@ -112,21 +117,53 @@ export class AdminDashboardService {
       { $sort: { '_id.year': 1, '_id.month': 1 } },
     ]);
 
-    // Calculate monthly % change
-    const percentageChanges = [];
-    for (let i = 1; i < monthlyData.length; i++) {
-      const prev = monthlyData[i - 1].totalAmount;
-      const curr = monthlyData[i].totalAmount;
-      const percentChange = ((curr - prev) / (prev || 1)) * 100; // Avoid division by zero
-      percentageChanges.push({
-        month: monthlyData[i]._id.month,
-        year: monthlyData[i]._id.year,
-        totalAmount: curr,
-        percentageChange: percentChange.toFixed(2),
-      });
-    }
+    // Find previous and current month totals
+    const prevMonthData = monthlyData.find(
+      (m) =>
+        m._id.year === startOfPreviousMonth.getFullYear() &&
+        m._id.month === startOfPreviousMonth.getMonth() + 1,
+    );
 
-    return percentageChanges;
+    const currMonthData = monthlyData.find(
+      (m) =>
+        m._id.year === startOfCurrentMonth.getFullYear() &&
+        m._id.month === startOfCurrentMonth.getMonth() + 1,
+    );
+
+    const prevTotal = prevMonthData?.totalAmount || 0;
+    const currTotal = currMonthData?.totalAmount || 0;
+
+    // Calculate percentage difference
+    const difference = currTotal - prevTotal;
+    const percentChange = prevTotal
+      ? ((difference / prevTotal) * 100).toFixed(2)
+      : currTotal > 0
+        ? 100
+        : 0;
+
+    const status =
+      currTotal > prevTotal
+        ? 'increase'
+        : currTotal < prevTotal
+          ? 'decrease'
+          : 'no change';
+
+    return {
+      previousMonth: {
+        month: startOfPreviousMonth.toLocaleString('default', {
+          month: 'long',
+        }),
+        year: startOfPreviousMonth.getFullYear(),
+        totalAmount: prevTotal,
+      },
+      currentMonth: {
+        month: startOfCurrentMonth.toLocaleString('default', { month: 'long' }),
+        year: startOfCurrentMonth.getFullYear(),
+        totalAmount: currTotal,
+      },
+      percentageChange: `${percentChange}%`,
+      status,
+    };
   }
 
   /**
