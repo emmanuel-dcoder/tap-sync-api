@@ -7,10 +7,14 @@ import { AdminService } from './admin.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { envConfig } from 'src/core/config/env.config';
+import { User, UserSchema } from 'src/user/schemas/user.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
+    MongooseModule.forFeature([
+      { name: Admin.name, schema: AdminSchema },
+      { name: User.name, schema: UserSchema },
+    ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: `${envConfig.jwt.secret}`,

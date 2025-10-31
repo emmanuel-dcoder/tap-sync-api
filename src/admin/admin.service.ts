@@ -15,12 +15,15 @@ import {
 import { Admin, AdminDocument } from './schemas/admin.schema';
 import { AdminLoginDto, CreateAdminDto } from './dto/create-admin.dto';
 import { JwtService } from '@nestjs/jwt';
+import { User, UserDocument } from 'src/user/schemas/user.schema';
+import { UserStatus } from 'src/user/enum/user.enum';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
     private jwtService: JwtService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   async createAdmin(adminDto: CreateAdminDto) {
@@ -132,6 +135,90 @@ export class AdminService {
         accountType: admin.accountType,
         profileImage: admin.profileImage,
       };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**
+   * Fetch users by accountType with optional search
+   */
+  async fetchUsersByAccountType(accountType: string, search?: string) {
+    try {
+      if (!accountType) {
+        throw new BadRequestException('accountType is required');
+      }
+
+      const query: any = { accountType };
+
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { username: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      const users = await this.userModel.find(query);
+
+      if (!users || users.length === 0)
+        throw new NotFoundException('No users found for the given criteria');
+
+      return users;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**
+   * Update user details by ID
+   */
+  async updateUser(userId: string, payload: any) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID');
+      }
+
+      const user = await this.userModel.findById(userId);
+      if (!user) throw new NotFoundException('User not found');
+
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        userId,
+        { $set: payload },
+        { new: true, runValidators: true },
+      );
+
+      return updatedUser;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**
+   * 🟡 Update user status
+   */
+  async updateUserStatus(userId: string, status: UserStatus) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID');
+      }
+
+      const user = await this.userModel.findById(userId);
+      if (!user) throw new NotFoundException('User not found');
+
+      user.status = status;
+      await user.save();
+
+      return user;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
