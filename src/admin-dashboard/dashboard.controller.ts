@@ -10,7 +10,7 @@ import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { AdminDashboardService } from './dashboard.service';
 import { successResponse } from 'src/core/config/response';
 
-@Controller('admin-dashboard')
+@Controller('api/v1/admin-dashboard')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @ApiTags('Admin Dashboard')
