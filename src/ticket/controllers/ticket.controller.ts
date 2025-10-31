@@ -140,4 +140,20 @@ export class TicketController {
       data,
     });
   }
+
+  @Get('count/all')
+  @ApiOperation({ summary: 'Get total, pending, and resolved ticket counts' })
+  @ApiResponse({
+    status: 200,
+    description: 'Ticket counts retrieved successfully',
+  })
+  async getTicketCounts() {
+    const data = await this.ticketService.getTicketCounts();
+    return successResponse({
+      message: 'Ticket counts retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 }

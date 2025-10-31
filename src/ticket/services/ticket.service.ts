@@ -138,4 +138,27 @@ export class TicketService {
       );
     }
   }
+
+  async getTicketCounts() {
+    try {
+      const total = await this.ticketModel.countDocuments();
+      const pending = await this.ticketModel.countDocuments({
+        status: status.pending,
+      });
+      const resolved = await this.ticketModel.countDocuments({
+        status: status.resolved,
+      });
+
+      return {
+        total,
+        pending,
+        resolved,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 }
