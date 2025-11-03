@@ -89,6 +89,7 @@ export class AdminDashboardService {
   /**
    * Get percentage monthly increment or decrement in transaction amounts
    * (Only for successful transactions)
+   * Also include total amount for transactions with status "paid"
    */
   async getMonthlyTransactionPercentageChange() {
     const now = new Date();
@@ -99,7 +100,7 @@ export class AdminDashboardService {
       1,
     );
 
-    // Aggregate total amount for current and previous month
+    // Aggregate total amount for current and previous month (status = success)
     const monthlyData = await this.transactionModel.aggregate([
       {
         $match: {
@@ -150,6 +151,20 @@ export class AdminDashboardService {
           ? 'decrease'
           : 'no change';
 
+    // ✅ Calculate total amount for transactions where status = "paid"
+    const totalPaidData = await this.transactionModel.aggregate([
+      { $match: { status: 'success' } },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const totalPaidAmount = totalPaidData[0]?.totalAmount || 0;
+
+    // ✅ Final Response
     return {
       previousMonth: {
         month: startOfPreviousMonth.toLocaleString('default', {
@@ -165,6 +180,7 @@ export class AdminDashboardService {
       },
       percentageChange: `${percentChange}%`,
       status,
+      totalPaidAmount, // 👈 added this field
     };
   }
 
