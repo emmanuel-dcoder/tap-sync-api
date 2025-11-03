@@ -226,4 +226,62 @@ export class AdminService {
       );
     }
   }
+
+  /**
+   * Fetch users by accountType ('company' or 'individual') with search + pagination
+   */
+  async fetchCompanyOrIndividualUsers(
+    accountType: string,
+    page = 1,
+    limit = 10,
+    search?: string,
+  ) {
+    try {
+      if (!['company', 'individual'].includes(accountType.toLowerCase())) {
+        throw new BadRequestException(
+          'accountType must be either "company" or "individual"',
+        );
+      }
+
+      const skip = (page - 1) * limit;
+
+      // Base query
+      const query: any = { accountType: accountType.toLowerCase() };
+
+      // Optional search filter
+      if (search && search.trim() !== '') {
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { username: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      // Fetch paginated data
+      const [users, total] = await Promise.all([
+        this.userModel
+          .find(query)
+          .skip(skip)
+          .limit(limit)
+          .sort({ createdAt: -1 }),
+        this.userModel.countDocuments(query),
+      ]);
+
+      if (!users.length) {
+        throw new NotFoundException('No users found for the given criteria');
+      }
+
+      return {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        users,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 }

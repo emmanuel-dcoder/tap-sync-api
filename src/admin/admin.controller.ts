@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -146,6 +147,54 @@ export class AdminController {
     const data = await this.adminService.updateUserStatus(id, status);
     return successResponse({
       message: 'User status updated successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  /** getting users by account type */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('users/:accountType')
+  @ApiOperation({
+    summary:
+      'Fetch users by accountType (company or individual) with optional search and pagination',
+  })
+  @ApiResponse({ status: 200, description: 'Users fetched successfully' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of users per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Optional search term (name, username, or email)',
+  })
+  async getUsersByType(
+    @Query('accountType') accountType: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search?: string,
+  ) {
+    const data = await this.adminService.fetchCompanyOrIndividualUsers(
+      accountType,
+      Number(page),
+      Number(limit),
+      search, // optional, can be undefined
+    );
+
+    return successResponse({
+      message: 'Users fetched successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,
