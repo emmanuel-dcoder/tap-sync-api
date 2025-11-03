@@ -237,14 +237,7 @@ export class AdminService {
     search?: string,
   ) {
     try {
-      if (!['company', 'individual'].includes(accountType.toLowerCase())) {
-        throw new BadRequestException(
-          'accountType must be either "company" or "individual"',
-        );
-      }
-
       const skip = (page - 1) * limit;
-
       // Base query
       const query: any = { accountType: accountType.toLowerCase() };
 
