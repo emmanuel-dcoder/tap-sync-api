@@ -239,7 +239,7 @@ export class AdminService {
     try {
       const skip = (page - 1) * limit;
       // Base query
-      const query: any = { accountType: accountType.toLowerCase() };
+      const query: any = { accountType: accountType };
 
       // Optional search filter
       if (search && search.trim() !== '') {
