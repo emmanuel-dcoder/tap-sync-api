@@ -260,7 +260,7 @@ export class AdminService {
       // Fetch paginated data
       const [users, total] = await Promise.all([
         this.userModel
-          .find(query)
+          .find({ ...query, isSubscribe: true })
           .skip(skip)
           .limit(limit)
           .sort({ createdAt: -1 }),
