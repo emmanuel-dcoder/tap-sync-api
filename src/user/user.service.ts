@@ -215,7 +215,6 @@ export class UserService {
 
       //generate random password
       const dummyPassword = AlphaNumeric(6);
-      console.log('dummy password', dummyPassword);
       const hashedPassword = await hashPassword(dummyPassword);
       user.password = hashedPassword;
       await user.save();
