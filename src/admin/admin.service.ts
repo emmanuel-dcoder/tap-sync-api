@@ -128,6 +128,7 @@ export class AdminService {
       delete admin.password;
 
       return {
+        _id: admin._id,
         firstName: admin.firstName,
         lastName: admin.lastName,
         email: admin.email,
