@@ -18,6 +18,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { UserStatus } from 'src/user/enum/user.enum';
 import { Staff, StaffDocument } from 'src/staff/schemas/staff.schema';
+import { Request, RequestDocument } from 'src/request/schemas/request.schema';
 
 @Injectable()
 export class AdminService {
@@ -26,6 +27,7 @@ export class AdminService {
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Staff.name) private staffModel: Model<StaffDocument>,
+    @InjectModel(Request.name) private requestModel: Model<RequestDocument>,
   ) {}
 
   async createAdmin(adminDto: CreateAdminDto) {
@@ -305,6 +307,100 @@ export class AdminService {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
         users: usersWithStaff, // now fully compatible
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**
+   * Fetch staff by company ID with optional search and pagination
+   */
+  async fetchStaffByCompanyId(
+    companyId: string,
+    page = 1,
+    limit = 10,
+    search?: string,
+  ) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(companyId)) {
+        throw new BadRequestException('Invalid company ID format');
+      }
+
+      const skip = (page - 1) * limit;
+
+      const query: any = { companyId: new mongoose.Types.ObjectId(companyId) };
+
+      if (search && search.trim() !== '') {
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+          { position: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      const [staff, total] = await Promise.all([
+        this.staffModel
+          .find(query)
+          .skip(skip)
+          .limit(limit)
+          .sort({ createdAt: -1 }),
+        this.staffModel.countDocuments(query),
+      ]);
+
+      if (!staff.length) {
+        throw new NotFoundException('No staff found for the given company');
+      }
+
+      return {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        staff,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**
+   * Fetch card request by company ID with optional search and pagination
+   */
+  async getRequestsByCompanyId(companyId: string, page = 1, limit = 10) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(companyId)) {
+        throw new BadRequestException('Invalid company ID format');
+      }
+
+      const skip = (page - 1) * limit;
+
+      const query: any = { companyId: new mongoose.Types.ObjectId(companyId) };
+
+      const [request, total] = await Promise.all([
+        this.requestModel
+          .find(query)
+          .populate('staffId')
+          .skip(skip)
+          .limit(limit)
+          .sort({ createdAt: -1 }),
+        this.requestModel.countDocuments(query),
+      ]);
+
+      if (!request.length) {
+        throw new NotFoundException('No request found for the given company');
+      }
+
+      return {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        request,
       };
     } catch (error) {
       throw new HttpException(

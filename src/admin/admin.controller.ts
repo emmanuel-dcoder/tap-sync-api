@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -195,6 +196,118 @@ export class AdminController {
 
     return successResponse({
       message: 'Users fetched successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  /**
+   * GET staff by company ID
+   * Example: GET /api/v1/admin/staff/:companyId
+   */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('staff/:companyId')
+  @ApiOperation({
+    summary: 'Fetch staff by company ID',
+    description:
+      'Fetch all staff members belonging to a specific company by company ID.',
+  })
+  @ApiParam({
+    name: 'companyId',
+    required: true,
+    type: String,
+    description: 'The ID of the company to fetch staff for',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of staff per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Optional search by staff name or email',
+  })
+  async getStaffByCompanyId(
+    @Param('companyId') companyId: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Query('search') search?: string,
+  ) {
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+
+    const data = await this.adminService.fetchStaffByCompanyId(
+      companyId,
+      pageNum,
+      limitNum,
+      search,
+    );
+
+    return successResponse({
+      message: 'Staff fetched successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  /**
+   * GET request by company ID
+   * Example: GET /api/v1/admin/staff/:companyId
+   */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('request/:companyId')
+  @ApiOperation({
+    summary: 'Fetch request by company ID',
+    description:
+      'Fetch all card request belonging to a specific company by company ID.',
+  })
+  @ApiParam({
+    name: 'companyId',
+    required: true,
+    type: String,
+    description: 'The ID of the company to fetch request for',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of request per page (default: 10)',
+  })
+  async getRequestsByCompanyId(
+    @Param('companyId') companyId: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+  ) {
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+
+    const data = await this.adminService.getRequestsByCompanyId(
+      companyId,
+      pageNum,
+      limitNum,
+    );
+
+    return successResponse({
+      message: 'Requet fetched successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

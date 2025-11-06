@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { envConfig } from 'src/core/config/env.config';
 import { User, UserSchema } from 'src/user/schemas/user.schema';
 import { Staff, StaffSchema } from 'src/staff/schemas/staff.schema';
+import { Request, RequestSchema } from 'src/request/schemas/request.schema';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { Staff, StaffSchema } from 'src/staff/schemas/staff.schema';
       { name: Admin.name, schema: AdminSchema },
       { name: User.name, schema: UserSchema },
       { name: Staff.name, schema: StaffSchema },
+      { name: Request.name, schema: RequestSchema },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
