@@ -17,6 +17,7 @@ import { AdminLoginDto, CreateAdminDto } from './dto/create-admin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { UserStatus } from 'src/user/enum/user.enum';
+import { Staff, StaffDocument } from 'src/staff/schemas/staff.schema';
 
 @Injectable()
 export class AdminService {
@@ -24,6 +25,7 @@ export class AdminService {
     @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Staff.name) private staffModel: Model<StaffDocument>,
   ) {}
 
   async createAdmin(adminDto: CreateAdminDto) {
@@ -239,8 +241,9 @@ export class AdminService {
   ) {
     try {
       const skip = (page - 1) * limit;
+
       // Base query
-      const query: any = { accountType: accountType };
+      const query: any = { accountType };
 
       // Optional search filter
       if (search && search.trim() !== '') {
@@ -251,7 +254,7 @@ export class AdminService {
         ];
       }
 
-      // Fetch paginated data
+      // Fetch paginated users
       const [users, total] = await Promise.all([
         this.userModel
           .find({ ...query, isSubscribe: true })
@@ -265,11 +268,43 @@ export class AdminService {
         throw new NotFoundException('No users found for the given criteria');
       }
 
+      // Convert users to plain JS objects (avoids Document type conflicts)
+      const usersPlain: any[] = users.map((user) => user.toObject());
+
+      let usersWithStaff: any[] = [...usersPlain];
+
+      // ✅ Add staff count if accountType is 'company'
+      if (accountType === 'company') {
+        const userIds = users.map((user) => user._id);
+
+        // Aggregate staff counts by companyId
+        const staffCounts = await this.staffModel.aggregate([
+          { $match: { companyId: { $in: userIds } } },
+          { $group: { _id: '$companyId', count: { $sum: 1 } } },
+        ]);
+
+        // Create a lookup map for quick access
+        const staffCountMap = staffCounts.reduce(
+          (acc, item) => {
+            acc[item._id.toString()] = item.count;
+            return acc;
+          },
+          {} as Record<string, number>,
+        );
+
+        // Attach staffCount to each company user
+        usersWithStaff = usersPlain.map((user) => ({
+          ...user,
+          staffCount: staffCountMap[user._id.toString()] || 0,
+        }));
+      }
+
+      // ✅ Return plain objects only (not Mongoose documents)
       return {
         total,
         currentPage: page,
         totalPages: Math.ceil(total / limit),
-        users,
+        users: usersWithStaff, // now fully compatible
       };
     } catch (error) {
       throw new HttpException(
