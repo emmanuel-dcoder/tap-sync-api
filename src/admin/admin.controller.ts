@@ -154,15 +154,18 @@ export class AdminController {
     });
   }
 
-  /** getting users by account type */
+  /** getting subscribed users by account type */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('users/:accountType')
   @ApiOperation({
     summary:
-      'Fetch users by accountType (company or individual) with optional search and pagination',
+      'Fetch subscribed users by accountType (company or individual) with optional search and pagination',
   })
-  @ApiResponse({ status: 200, description: 'Users fetched successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Subscribed users fetched successfully',
+  })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -181,7 +184,7 @@ export class AdminController {
     type: String,
     description: 'Optional search term (name, username, or email)',
   })
-  async getUsersByType(
+  async getSubscribedUsersByType(
     @Query('accountType') accountType: string,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
@@ -195,7 +198,7 @@ export class AdminController {
     );
 
     return successResponse({
-      message: 'Users fetched successfully',
+      message: 'Subscribed users fetched successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,
@@ -308,6 +311,73 @@ export class AdminController {
 
     return successResponse({
       message: 'Requet fetched successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  /** getting users by account type */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('users/all/:accountType')
+  @ApiOperation({
+    summary:
+      'Fetch users by accountType (company or individual) with optional search and pagination',
+  })
+  @ApiResponse({ status: 200, description: 'Users fetched successfully' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of users per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Optional search term (name, username, or email)',
+  })
+  async getUsersByType(
+    @Query('accountType') accountType: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search?: string,
+  ) {
+    const data = await this.adminService.fetchUserByAccountType(
+      accountType,
+      Number(page),
+      Number(limit),
+      search, // optional, can be undefined
+    );
+
+    return successResponse({
+      message: 'Users fetched successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  //fetch inidivual user
+  @Get('user/single/:userId')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Fetch user by userId',
+  })
+  @ApiResponse({ status: 200, description: 'User details fetched' })
+  @ApiResponse({ status: 401, description: 'Unable to perform task' })
+  async fetchSingleUser(@Query('accountType') userId: string) {
+    const data = await this.adminService.findSingleUser(userId);
+    return successResponse({
+      message: 'Retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

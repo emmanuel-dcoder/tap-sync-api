@@ -83,6 +83,7 @@ export class UserService {
     }
   }
 
+  //login servie
   async login(dto: LoginDto): Promise<any> {
     try {
       const user = await this.userModel.findOne({ email: dto.email });
@@ -119,6 +120,7 @@ export class UserService {
     }
   }
 
+  //logged in user details
   async loggedInUser(userId: string) {
     try {
       if (!mongoose.Types.ObjectId.isValid(userId)) {

@@ -409,4 +409,121 @@ export class AdminService {
       );
     }
   }
+
+  /**
+   * Fetch users by accountType
+   */
+  async fetchUserByAccountType(
+    accountType: string,
+    page = 1,
+    limit = 10,
+    search?: string,
+  ) {
+    try {
+      const skip = (page - 1) * limit;
+
+      // Base query
+      const query: any = { accountType };
+
+      // Optional search filter
+      if (search && search.trim() !== '') {
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { username: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      // Fetch paginated users
+      const [users, total] = await Promise.all([
+        this.userModel
+          .find({ ...query })
+          .skip(skip)
+          .limit(limit)
+          .sort({ createdAt: -1 }),
+        this.userModel.countDocuments(query),
+      ]);
+
+      if (!users.length) {
+        throw new NotFoundException('No users found for the given criteria');
+      }
+
+      // Convert users to plain JS objects (avoids Document type conflicts)
+      const usersPlain: any[] = users.map((user) => user.toObject());
+
+      let usersWithStaff: any[] = [...usersPlain];
+
+      // ✅ Add staff count if accountType is 'company'
+      if (accountType === 'company') {
+        const userIds = users.map((user) => user._id);
+
+        // Aggregate staff counts by companyId
+        const staffCounts = await this.staffModel.aggregate([
+          { $match: { companyId: { $in: userIds } } },
+          { $group: { _id: '$companyId', count: { $sum: 1 } } },
+        ]);
+
+        // Create a lookup map for quick access
+        const staffCountMap = staffCounts.reduce(
+          (acc, item) => {
+            acc[item._id.toString()] = item.count;
+            return acc;
+          },
+          {} as Record<string, number>,
+        );
+
+        // Attach staffCount to each company user
+        usersWithStaff = usersPlain.map((user) => ({
+          ...user,
+          staffCount: staffCountMap[user._id.toString()] || 0,
+        }));
+      }
+
+      // ✅ Return plain objects only (not Mongoose documents)
+      return {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        users: usersWithStaff, // now fully compatible
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //fetch single user
+  async findSingleUser(userId: string) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID format');
+      }
+
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (!user) throw new BadRequestException('Invalid user');
+
+      delete user.password;
+
+      return {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        username: user.username,
+        profileImage: user.profileImage,
+        phone: user.phone,
+        isSubscribe: user.isSubscribe,
+        accountType: user.accountType,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 }
