@@ -374,7 +374,7 @@ export class AdminController {
   })
   @ApiResponse({ status: 200, description: 'User details fetched' })
   @ApiResponse({ status: 401, description: 'Unable to perform task' })
-  async fetchSingleUser(@Query('accountType') userId: string) {
+  async fetchSingleUser(@Query('userId') userId: string) {
     const data = await this.adminService.findSingleUser(userId);
     return successResponse({
       message: 'Retrieved successfully',
