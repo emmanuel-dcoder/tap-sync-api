@@ -494,7 +494,7 @@ export class AdminService {
     }
   }
 
-  //fetch single user
+  //fetch single user..
   async findSingleUser(userId: string) {
     try {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
