@@ -518,6 +518,7 @@ export class AdminService {
         phone: user.phone,
         isSubscribe: user.isSubscribe,
         accountType: user.accountType,
+        profileLink: user.profileLink,
       };
     } catch (error) {
       throw new HttpException(
