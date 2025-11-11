@@ -61,7 +61,7 @@ export class UserService {
 
       do {
         createUserDto.accountType === 'company'
-          ? (profileLink = `https://tapsync.com/${createUserDto.name.trim()}/${AlphaNumeric(3, 'number')}`)
+          ? (profileLink = `https://tapsync.com/${createUserDto.name.trim().split(' ').join('')}/${AlphaNumeric(3, 'number')}`)
           : (profileLink = `https://tapsync.com/${AlphaNumeric(3, 'number')}`);
         validateProfileLink = await this.userModel.findOne({ profileLink });
       } while (validateProfileLink);
