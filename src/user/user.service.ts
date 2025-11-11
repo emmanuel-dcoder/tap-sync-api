@@ -61,6 +61,21 @@ export class UserService {
         ...(logo && { logo }),
       };
       const createUser = await this.userModel.create(updateData);
+
+      let profileLink;
+      let validateProfileLink;
+
+      if (createUser.profileLink === null || !createUser.profileLink) {
+        do {
+          createUser.accountType === 'company'
+            ? (profileLink = `https://tapsync.com/${createUser.name}/${AlphaNumeric(3, 'number')}`)
+            : (profileLink = `https://tapsync.com/${AlphaNumeric(3, 'number')}`);
+          validateProfileLink = await this.userModel.findOne({ profileLink });
+        } while (validateProfileLink);
+      }
+
+      await createUser.save();
+
       createUser.password = undefined;
 
       try {
