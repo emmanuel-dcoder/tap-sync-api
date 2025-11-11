@@ -55,26 +55,24 @@ export class UserService {
       if (validateUser) throw new BadGatewayException('Email already exist');
 
       const hashedPassword = await hashPassword(password);
-      const updateData = {
-        ...createUserDto,
-        password: hashedPassword,
-        ...(logo && { logo }),
-      };
-      const createUser = await this.userModel.create(updateData);
 
       let profileLink;
       let validateProfileLink;
 
-      if (createUser.profileLink === null || !createUser.profileLink) {
-        do {
-          createUser.accountType === 'company'
-            ? (profileLink = `https://tapsync.com/${createUser.name}/${AlphaNumeric(3, 'number')}`)
-            : (profileLink = `https://tapsync.com/${AlphaNumeric(3, 'number')}`);
-          validateProfileLink = await this.userModel.findOne({ profileLink });
-        } while (validateProfileLink);
-      }
+      do {
+        createUserDto.accountType === 'company'
+          ? (profileLink = `https://tapsync.com/${createUserDto.name.trim()}/${AlphaNumeric(3, 'number')}`)
+          : (profileLink = `https://tapsync.com/${AlphaNumeric(3, 'number')}`);
+        validateProfileLink = await this.userModel.findOne({ profileLink });
+      } while (validateProfileLink);
 
-      await createUser.save();
+      const updateData = {
+        ...createUserDto,
+        profileLink,
+        password: hashedPassword,
+        ...(logo && { logo }),
+      };
+      const createUser = await this.userModel.create(updateData);
 
       createUser.password = undefined;
 
