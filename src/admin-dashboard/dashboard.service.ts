@@ -239,9 +239,9 @@ export class AdminDashboardService {
       result.find((r) => r._id === 'individual')?.totalRequests || 0;
 
     return {
-      companyRequests,
-      individualRequests,
-      totalCardsRequests: companyRequests + individualRequests,
+      companyRequests: companyRequests || 0,
+      individualRequests: individualRequests || 0,
+      totalCardsRequests: companyRequests + individualRequests || 0,
     };
   }
 }
