@@ -301,7 +301,7 @@ export class AdminService {
         }));
       }
 
-      // ✅ Return plain objects only (not Mongoose documents)
+      // Return plain objects only (not Mongoose documents)
       return {
         total,
         currentPage: page,
