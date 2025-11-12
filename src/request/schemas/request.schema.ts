@@ -11,7 +11,7 @@ export class Request {
   @Prop({ required: true })
   businessName: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   description: string;
 
   @Prop({ required: true, default: 1 })
