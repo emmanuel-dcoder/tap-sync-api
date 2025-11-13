@@ -380,8 +380,7 @@ export class AdminService {
 
       const skip = (page - 1) * limit;
 
-      const query: any = { companyId: new mongoose.Types.ObjectId(companyId) };
-
+      const query: any = { userId: new mongoose.Types.ObjectId(companyId) };
       const [request, total] = await Promise.all([
         this.requestModel
           .find(query)
