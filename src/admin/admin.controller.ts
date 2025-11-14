@@ -187,7 +187,7 @@ export class AdminController {
   async getSubscribedUsersByType(
     @Query('accountType') accountType: string,
     @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('limit') limit = 100,
     @Query('search') search?: string,
   ) {
     const data = await this.adminService.fetchCompanyOrIndividualUsers(
@@ -347,7 +347,7 @@ export class AdminController {
   async getUsersByType(
     @Query('accountType') accountType: string,
     @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('limit') limit = 100,
     @Query('search') search?: string,
   ) {
     const data = await this.adminService.fetchUserByAccountType(

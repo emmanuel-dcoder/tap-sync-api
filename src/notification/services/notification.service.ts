@@ -35,7 +35,7 @@ export class NotificationService {
     userId?: string,
   ) {
     try {
-      const { search, page = 1, limit = 10 } = query;
+      const { search, page = 1, limit = 1000 } = query;
       const skip = (page - 1) * limit;
 
       const filter: any = {};

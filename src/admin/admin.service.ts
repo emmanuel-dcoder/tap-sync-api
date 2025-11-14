@@ -322,7 +322,7 @@ export class AdminService {
   async fetchStaffByCompanyId(
     companyId: string,
     page = 1,
-    limit = 50,
+    limit = 1000,
     search?: string,
   ) {
     try {
