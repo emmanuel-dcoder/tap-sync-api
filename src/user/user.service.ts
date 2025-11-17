@@ -29,7 +29,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { RequestDto } from 'src/request/dto/create-request.dto';
-import { Request } from 'src/request/schemas/request.schema';
+import { Request, RequestDocument } from 'src/request/schemas/request.schema';
 import { NotificationService } from 'src/notification/services/notification.service';
 
 @Injectable()
@@ -40,7 +40,7 @@ export class UserService {
     private readonly mailService: MailService,
     private jwtService: JwtService,
     private notificationService: NotificationService,
-    @InjectModel(Request.name) private requestModel: Model<Request>,
+    @InjectModel(Request.name) private requestModel: Model<RequestDocument>,
   ) {}
 
   async create(createUserDto: CreateUserDto, files?: any) {

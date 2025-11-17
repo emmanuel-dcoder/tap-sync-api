@@ -18,7 +18,7 @@ export class RequestDto {
   @IsNumber()
   quantity: number;
 
-  @ApiProperty({ type: cardType })
+  @ApiProperty({ type: String })
   @IsString()
   cardType: string;
 

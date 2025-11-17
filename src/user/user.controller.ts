@@ -311,7 +311,7 @@ export class UserController {
           example: 1,
           nullable: true,
         },
-        cartType: {
+        cardType: {
           type: 'string',
           example: cardType.metal,
           description: 'this can be Metal or PVC',
