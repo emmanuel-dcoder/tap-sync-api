@@ -244,7 +244,7 @@ export class AdminController {
   async getStaffByCompanyId(
     @Param('companyId') companyId: string,
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '10',
+    @Query('limit') limit: string = '1000',
     @Query('search') search?: string,
   ) {
     const pageNum = Number(page) || 1;
@@ -298,7 +298,7 @@ export class AdminController {
   async getRequestsByCompanyId(
     @Param('companyId') companyId: string,
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '10',
+    @Query('limit') limit: string = '100',
   ) {
     const pageNum = Number(page) || 1;
     const limitNum = Number(limit) || 10;
