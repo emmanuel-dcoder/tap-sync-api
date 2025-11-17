@@ -34,6 +34,7 @@ import { CreateUserCardDto } from './dto/create-user-card.dto';
 import { BadRequestErrorException } from 'src/core/common/filters/error-exceptions';
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { accountType } from './enum/user.enum';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('api/v1/user')
 @ApiTags('Onboarding Company or Individual')
@@ -370,26 +371,26 @@ export class UserController {
     });
   }
 
-  // @Put('edit-profile/:id')
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @ApiOperation({ summary: 'Edit user profile' })
-  // @ApiBody({ type: UpdateUserDto })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'User profile updated successfully.',
-  // })
-  // @ApiResponse({ status: 400, description: 'Invalid data provided.' })
-  // async editUserProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-  //   const user = req.user._id;
-  //   const data = await this.userService.editUserProfile(user, updateUserDto);
-  //   return successResponse({
-  //     message: 'User profile updated successfully.',
-  //     code: HttpStatus.OK,
-  //     status: 'success',
-  //     data,
-  //   });
-  // }
+  @Put('edit-profile/:id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Edit user profile' })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile updated successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid data provided.' })
+  async editUserProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
+    const user = req.user._id;
+    const data = await this.userService.editUserProfile(user, updateUserDto);
+    return successResponse({
+      message: 'User profile updated successfully.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 
   // @Post('verify-otp')
   // @ApiOperation({
