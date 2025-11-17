@@ -7,10 +7,10 @@ export class Order extends Document {
   userId: Types.ObjectId;
 
   @Prop({ required: false, default: null })
-  startDate: Date;
+  startDate: string;
 
   @Prop({ required: false, default: null })
-  endDate: Date;
+  endDate: string;
 
   @Prop({ required: false, default: null })
   durationInMonths: number;

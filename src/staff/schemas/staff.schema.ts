@@ -65,10 +65,10 @@ export class Staff {
   companyId: mongoose.Types.ObjectId;
 
   @Prop({ type: Date, default: Date.now })
-  startDate: Date;
+  startDate: string;
 
   @Prop({ type: Date, default: null })
-  endDate: Date;
+  endDate: string;
 }
 
 export const StaffSchema = SchemaFactory.createForClass(Staff);

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { accountType, UserStatus } from '../enum/user.enum';
+import { cardType } from 'src/request/enum/request.enum';
 
 export type UserDocument = User & Document;
 
@@ -97,6 +98,9 @@ export class User {
 
   @Prop({ default: null })
   resetTokenDate: Date;
+
+  @Prop({ required: true, enum: cardType, default: cardType.pcv })
+  cardType: string;
 
   @Prop({
     type: String,
