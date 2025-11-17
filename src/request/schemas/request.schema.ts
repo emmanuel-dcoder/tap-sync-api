@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { cardType } from '../enum/request.enum';
 
 export type RequestDocument = Request & Document;
 
@@ -13,6 +14,9 @@ export class Request {
 
   @Prop({ required: false })
   description: string;
+
+  @Prop({ required: true, enum: cardType, default: cardType.pcv })
+  cardType: string;
 
   @Prop({ required: true, default: 1 })
   quantity: number;

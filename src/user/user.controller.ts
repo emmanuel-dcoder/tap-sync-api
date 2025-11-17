@@ -35,6 +35,7 @@ import { BadRequestErrorException } from 'src/core/common/filters/error-exceptio
 import { RequestDto } from 'src/request/dto/create-request.dto';
 import { accountType } from './enum/user.enum';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { cardType } from 'src/request/enum/request.enum';
 
 @Controller('api/v1/user')
 @ApiTags('Onboarding Company or Individual')
@@ -284,6 +285,7 @@ export class UserController {
       data,
     };
   }
+
   /** update user card details controller */
   @Put('card-request')
   @ApiBearerAuth()
@@ -307,6 +309,12 @@ export class UserController {
         quantity: {
           type: 'number',
           example: 1,
+          nullable: true,
+        },
+        cartType: {
+          type: 'string',
+          example: cardType.metal,
+          description: 'this can be Metal or PVC',
           nullable: true,
         },
         brandColors: {
