@@ -29,6 +29,7 @@ import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { UserStatus } from 'src/user/enum/user.enum';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { TicketService } from 'src/ticket/services/ticket.service';
+import { status } from 'src/ticket/enum/ticket.enum';
 
 @Controller('api/v1/admin')
 @ApiTags('Admin')
@@ -440,6 +441,36 @@ export class AdminController {
     const data = await this.ticketService.findOne(id);
     return successResponse({
       message: 'Ticket retrieved',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  //update ticket
+  @Put('ticket/:id/status')
+  @ApiOperation({ summary: 'Update ticket status' })
+  @ApiParam({ name: 'id', required: true, description: 'Ticket ID' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: Object.values(status),
+          example: 'resolved',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Ticket status updated' })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') newStatus: status,
+  ) {
+    const data = await this.ticketService.updateStatus(id, newStatus);
+    return successResponse({
+      message: 'Ticket status updated successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,
