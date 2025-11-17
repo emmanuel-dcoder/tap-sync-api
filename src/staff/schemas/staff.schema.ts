@@ -67,7 +67,7 @@ export class Staff {
   @Prop({ type: Date, default: Date.now })
   startDate: Date;
 
-  @Prop()
+  @Prop({ type: Date, default: null })
   endDate: Date;
 }
 
