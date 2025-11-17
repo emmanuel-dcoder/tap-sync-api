@@ -371,7 +371,7 @@ export class UserController {
     });
   }
 
-  @Put('edit-profile/:id')
+  @Put('edit-profile')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Edit user profile' })

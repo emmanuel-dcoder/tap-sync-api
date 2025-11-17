@@ -19,14 +19,6 @@ export class CreateUserDto {
   @ApiProperty({ example: 'jojo' })
   @IsString()
   username: string;
-
-  @ApiProperty({ example: 'secret' })
-  @IsString()
-  password: string;
-
-  @ApiProperty({ example: 'individual' })
-  @IsString()
-  accountType: accountType;
 }
 
 export class VerifyOtpDto {
