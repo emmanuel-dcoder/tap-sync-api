@@ -27,11 +27,16 @@ import { AdminService } from './admin.service';
 import { AdminLoginDto, CreateAdminDto } from './dto/create-admin.dto';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { UserStatus } from 'src/user/enum/user.enum';
+import { PaginationDto } from 'src/core/common/pagination/pagination';
+import { TicketService } from 'src/ticket/services/ticket.service';
 
 @Controller('api/v1/admin')
 @ApiTags('Admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly ticketService: TicketService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create admin' })
@@ -378,6 +383,63 @@ export class AdminController {
     const data = await this.adminService.findSingleUser(userId);
     return successResponse({
       message: 'Retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  /***Ticket routes */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('ticket/all')
+  @ApiOperation({
+    summary: 'Get all ticket with search, pagination and status filter',
+  })
+  @ApiResponse({ status: 200, description: 'Ticket lists' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 10,
+    description: 'Number of items per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    example: 'search ticket',
+    description: 'Search query for ticket by name, subject, status',
+  })
+  async findAll(@Query() query: PaginationDto) {
+    const data = await this.ticketService.findAllByAdmin(query);
+    return successResponse({
+      message: 'Ticket lists',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  //find single ticket
+  @Get('ticket/:id')
+  @ApiOperation({ summary: 'Get a ticket by Id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Ticket retrieved',
+  })
+  @ApiResponse({ status: 404, description: 'Ticket not found' })
+  async findOne(@Param('id') id: string) {
+    const data = await this.ticketService.findOne(id);
+    return successResponse({
+      message: 'Ticket retrieved',
       code: HttpStatus.OK,
       status: 'success',
       data,

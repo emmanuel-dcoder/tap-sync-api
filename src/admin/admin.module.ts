@@ -10,6 +10,8 @@ import { envConfig } from 'src/core/config/env.config';
 import { User, UserSchema } from 'src/user/schemas/user.schema';
 import { Staff, StaffSchema } from 'src/staff/schemas/staff.schema';
 import { Request, RequestSchema } from 'src/request/schemas/request.schema';
+import { TicketService } from 'src/ticket/services/ticket.service';
+import { Ticket, TicketSchmea } from 'src/ticket/schemas/ticket.schema';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { Request, RequestSchema } from 'src/request/schemas/request.schema';
       { name: User.name, schema: UserSchema },
       { name: Staff.name, schema: StaffSchema },
       { name: Request.name, schema: RequestSchema },
+      { name: Ticket.name, schema: TicketSchmea },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
@@ -26,6 +29,6 @@ import { Request, RequestSchema } from 'src/request/schemas/request.schema';
     }),
   ],
   controllers: [AdminController],
-  providers: [AdminService, CloudinaryService],
+  providers: [AdminService, CloudinaryService, TicketService],
 })
 export class AdminModule {}

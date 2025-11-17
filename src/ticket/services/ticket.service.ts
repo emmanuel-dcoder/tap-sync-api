@@ -53,7 +53,7 @@ export class TicketService {
 
   async findAll(query: PaginationDto & { user?: string }) {
     try {
-      const { search, page = 1, limit = 50, user } = query;
+      const { search, page = 1, limit = 1000, user } = query;
       const skip = (page - 1) * limit;
 
       const filter: any = {};
@@ -153,6 +153,49 @@ export class TicketService {
         total,
         pending,
         resolved,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //fetch all ticket for admin
+  async findAllByAdmin(query: PaginationDto) {
+    try {
+      const { search, page = 1, limit = 1000 } = query;
+      const skip = (page - 1) * limit;
+
+      const filter: any = {};
+
+      if (search) {
+        filter.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { subject: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      const ticket = await this.ticketModel
+        .find(filter)
+        .populate({
+          path: 'user',
+          select:
+            'name businessName businessEmail businessUsername businessPhoneNumber email username profileImage',
+        })
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.ticketModel.countDocuments();
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data: ticket,
       };
     } catch (error) {
       throw new HttpException(
