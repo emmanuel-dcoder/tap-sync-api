@@ -64,7 +64,7 @@ export class TapsService {
       if (!user) {
         throw new BadRequestException('User not found');
       }
-
+      //return data
       return {
         _id: user._id,
         profileLink: user.profileLink,
@@ -84,6 +84,7 @@ export class TapsService {
         link: user.link,
         backgroundColor: user.backgroundColor,
         bio: user.bio,
+        calendifyLink: user.calendifyLink,
       };
     } catch (error) {
       throw new HttpException(
