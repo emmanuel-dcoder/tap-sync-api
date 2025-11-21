@@ -332,6 +332,7 @@ export class UserService {
         link: user.link,
         backgroundColor: user.backgroundColor,
         bio: user.bio,
+        calendifyLink: user.calendifyLink,
       };
     } catch (error) {
       throw new HttpException(
