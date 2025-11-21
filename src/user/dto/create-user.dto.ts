@@ -74,3 +74,9 @@ export class DeleteAccountDto {
   @IsString()
   password: string;
 }
+
+export class CalendifyDto {
+  @ApiProperty()
+  @IsString()
+  link: string;
+}

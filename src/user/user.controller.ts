@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
+  CalendifyDto,
   ChangePasswordDto,
   CreateUserDto,
   DeleteAccountDto,
@@ -397,6 +398,27 @@ export class UserController {
       code: HttpStatus.OK,
       status: 'success',
       data,
+    });
+  }
+
+  //calendify link
+  @Post('calendify')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Add calendify link' })
+  @ApiBody({ type: CalendifyDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Link update successful.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid data provided.' })
+  async addCalendify(@Req() req: any, @Body() calendifyDto: CalendifyDto) {
+    const user = req.user._id;
+    const data = await this.userService.calendifylink(calendifyDto.link, user);
+    return successResponse({
+      message: 'Link update successful.',
+      code: HttpStatus.OK,
+      status: 'success',
     });
   }
 

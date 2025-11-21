@@ -102,6 +102,9 @@ export class User {
   @Prop({ required: true, enum: cardType, default: cardType.pcv })
   cardType: string;
 
+  @Prop({ default: null })
+  calendifyLink: string;
+
   @Prop({
     type: String,
     enum: UserStatus,

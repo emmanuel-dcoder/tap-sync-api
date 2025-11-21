@@ -518,4 +518,25 @@ export class UserService {
       );
     }
   }
+
+  //add calendify link
+  async calendifylink(link: string, userId: string) {
+    try {
+      const user = await this.userModel.findOneAndUpdate(
+        { _id: userId },
+        { calendifyLink: link },
+        { new: true, runValidators: true },
+      );
+
+      if (!user)
+        throw new BadRequestException('Unable to update calendify link');
+
+      return;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 }
