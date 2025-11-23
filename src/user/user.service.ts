@@ -8,6 +8,7 @@ import {
 import {
   ChangePasswordDto,
   CreateUserDto,
+  CustomLinkDto,
   DeleteAccountDto,
   ForgotPasswordDto,
   LoginDto,
@@ -42,6 +43,25 @@ export class UserService {
     private notificationService: NotificationService,
     @InjectModel(Request.name) private requestModel: Model<RequestDocument>,
   ) {}
+
+  private async uploadUserImage(file: Express.Multer.File | undefined) {
+    try {
+      if (!file) {
+        return null;
+      }
+      const uploadedFile = await this.cloudinaryService.uploadFile(
+        file,
+        'profile-image',
+      );
+
+      return uploadedFile.secure_url;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 
   async create(createUserDto: CreateUserDto, files?: any) {
     try {
@@ -469,25 +489,6 @@ export class UserService {
     }
   }
 
-  private async uploadUserImage(file: Express.Multer.File | undefined) {
-    try {
-      if (!file) {
-        return null;
-      }
-      const uploadedFile = await this.cloudinaryService.uploadFile(
-        file,
-        'profile-image',
-      );
-
-      return uploadedFile.secure_url;
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
   async deleteAccount(userId: string, dto: DeleteAccountDto) {
     try {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -533,6 +534,22 @@ export class UserService {
         throw new BadRequestException('Unable to update calendify link');
 
       return;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //add customer link
+  async customLink(userId: string, customLinkDto: CustomLinkDto[]) {
+    try {
+      const user = await this.userModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(userId) },
+        { customLink: [...customLinkDto] },
+        { new: true, runValidators: true },
+      );
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

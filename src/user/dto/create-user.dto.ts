@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsString, IsUrl } from 'class-validator';
 import { accountType } from '../enum/user.enum';
 
 export class CreateUserDto {
@@ -79,4 +79,14 @@ export class CalendifyDto {
   @ApiProperty()
   @IsString()
   link: string;
+}
+
+export class CustomLinkDto {
+  @ApiProperty({ example: 'https://example.com' })
+  @IsUrl({}, { message: 'website must be a valid URL' })
+  url: string;
+
+  @ApiProperty({ example: 'social media link' })
+  @IsString()
+  name: string;
 }

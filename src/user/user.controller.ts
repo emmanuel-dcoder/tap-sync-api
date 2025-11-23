@@ -16,6 +16,7 @@ import {
   CalendifyDto,
   ChangePasswordDto,
   CreateUserDto,
+  CustomLinkDto,
   DeleteAccountDto,
   ForgotPasswordDto,
   LoginDto,
@@ -420,6 +421,28 @@ export class UserController {
       code: HttpStatus.OK,
       status: 'success',
     });
+  }
+
+  // add customer or other links
+
+  /**update user card details controller */
+  @Put('custom-link')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Add customized link' })
+  @ApiBody({ type: [CustomLinkDto] })
+  @ApiResponse({ status: 200, description: 'Custom link updated.' })
+  @ApiResponse({ status: 400, description: 'Error performing task' })
+  async customerLinks(@Req() req: any, @Body() customLinkDto: CustomLinkDto[]) {
+    const user = req.user._id;
+
+    const data = await this.userService.customLink(user, customLinkDto);
+    return {
+      message: 'Custom link updated.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    };
   }
 
   // @Post('verify-otp')

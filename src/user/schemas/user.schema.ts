@@ -6,6 +6,15 @@ import { cardType } from 'src/request/enum/request.enum';
 export type UserDocument = User & Document;
 
 @Schema({ _id: false })
+export class OtherLinks {
+  @Prop()
+  url: string;
+
+  @Prop()
+  name: string;
+}
+
+@Schema({ _id: false })
 export class Link {
   @Prop()
   website: string;
@@ -22,6 +31,7 @@ export class Link {
   @Prop()
   custom: string;
 }
+
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: false })
@@ -77,6 +87,9 @@ export class User {
 
   @Prop({ type: Link })
   link: Link;
+
+  @Prop({ type: [OtherLinks] })
+  customLink: OtherLinks[];
 
   @Prop({ required: true })
   password: string;
