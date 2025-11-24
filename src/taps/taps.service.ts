@@ -85,6 +85,7 @@ export class TapsService {
         backgroundColor: user.backgroundColor,
         bio: user.bio,
         calendifyLink: user.calendifyLink,
+        customLink: user.customLink,
       };
     } catch (error) {
       throw new HttpException(
