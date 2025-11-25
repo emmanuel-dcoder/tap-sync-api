@@ -46,7 +46,7 @@ export class UserController {
 
   @Post()
   @ApiOperation({
-    summary: 'Create indiviual, basic, or company',
+    summary: 'Create individual, basic, or company',
     description: `Account type must be either "inidividual", "basic" or "company"`,
   })
   @ApiConsumes('multipart/form-data')
