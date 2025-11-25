@@ -1,6 +1,7 @@
 export enum accountType {
   individual = 'individual',
   company = 'company',
+  basic = 'basic',
 }
 
 export enum UserStatus {
