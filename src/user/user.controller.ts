@@ -47,7 +47,7 @@ export class UserController {
   @Post()
   @ApiOperation({
     summary: 'Create indiviual or company',
-    description: `Account type must be either "inidividual" or "company"`,
+    description: `Account type must be either "inidividual", "basic" or "company"`,
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -62,7 +62,7 @@ export class UserController {
         accountType: {
           type: 'string',
           example: accountType.company,
-          description: 'company or individual',
+          description: 'company, basic or individual',
           nullable: true,
         },
         logo: { type: 'string', format: 'binary', nullable: true },
