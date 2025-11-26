@@ -191,7 +191,7 @@ export class AdminDashboardService {
     const result = await this.userModel.aggregate([
       {
         $match: {
-          accountType: { $in: ['company', 'individual'] },
+          accountType: { $in: ['company', 'individual', 'basic'] },
         },
       },
       {
