@@ -481,12 +481,32 @@ export class AdminController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user subscription status' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        isSubscribe: {
+          type: 'boolean',
+          example: true,
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Subscription status updated.' })
   @ApiResponse({ status: 400, description: 'Invalid user ID' })
   async updateUserSubscription(
     @Param('id') userId: string,
     @Body('isSubscribe') isSubscribe: boolean,
   ) {
-    return this.adminService.updateUserSubscription(userId, isSubscribe);
+    const data = await this.adminService.updateUserSubscription(
+      userId,
+      isSubscribe,
+    );
+    return successResponse({
+      message: 'Subscription status updated successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 }

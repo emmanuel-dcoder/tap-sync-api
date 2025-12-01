@@ -541,7 +541,6 @@ export class AdminService {
       await user.save();
 
       return {
-        message: 'Subscription status updated successfully',
         isSubscribe: user.isSubscribe,
       };
     } catch (error) {
