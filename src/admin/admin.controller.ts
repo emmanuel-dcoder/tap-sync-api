@@ -476,4 +476,17 @@ export class AdminController {
       data,
     });
   }
+
+  @Put('user/:id/subscribe')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user subscription status' })
+  @ApiResponse({ status: 200, description: 'Subscription status updated.' })
+  @ApiResponse({ status: 400, description: 'Invalid user ID' })
+  async updateUserSubscription(
+    @Param('id') userId: string,
+    @Body('isSubscribe') isSubscribe: boolean,
+  ) {
+    return this.adminService.updateUserSubscription(userId, isSubscribe);
+  }
 }

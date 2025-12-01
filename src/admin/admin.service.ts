@@ -526,4 +526,29 @@ export class AdminService {
       );
     }
   }
+
+  //upodate user subscription details
+  async updateUserSubscription(userId: string, isSubscribe: boolean) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID');
+      }
+
+      const user = await this.userModel.findById(userId);
+      if (!user) throw new NotFoundException('User not found');
+
+      user.isSubscribe = isSubscribe;
+      await user.save();
+
+      return {
+        message: 'Subscription status updated successfully',
+        isSubscribe: user.isSubscribe,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 }
