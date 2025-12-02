@@ -13,6 +13,7 @@ import { User, UserDocument } from 'src/user/schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { NotificationService } from 'src/notification/services/notification.service';
 import { MailService } from 'src/core/mail/email';
+import { accountType } from 'src/user/enum/user.enum';
 @Injectable()
 export class PaymentService {
   constructor(
@@ -23,16 +24,17 @@ export class PaymentService {
   ) {}
 
   async initializePayment(payload: CreatePaymentDto & { userId: string }) {
-    const { userId, duration, numberOfCards, paymentType } = payload;
+    const { userId, duration, numberOfCards, paymentType, planType, cardType } =
+      payload;
 
-    if (paymentType === 'card' && !numberOfCards)
+    if (paymentType === 'card' && !numberOfCards && !cardType)
       throw new BadRequestException(
-        'number field cannot be empty for card payment type',
+        'number of card and card type field cannot be empty for card payment type',
       );
 
-    if (paymentType === 'subscription' && !duration)
+    if (paymentType === 'subscription' && !duration && !planType)
       throw new BadRequestException(
-        'duration field cannot be empty for subscription payment type',
+        'duration and plan type field cannot be empty for subscription payment type',
       );
 
     const user = await this.userModel.findOne({
@@ -41,7 +43,29 @@ export class PaymentService {
 
     if (!user) throw new BadRequestException('Invalid User');
 
-    const amount = paymentType === 'card' ? 4000 : 10000;
+    let amount = 0;
+
+    // card payment logic (unchanged)
+    if (paymentType === 'card') {
+      if (cardType === 'PCV') amount = 3000;
+      else if (cardType === 'Metal') amount = 5000;
+      user.cardType = cardType;
+      await user.save();
+    }
+
+    // subscription payment logic (new)
+    if (paymentType === 'subscription') {
+      if (planType === accountType.basic) amount = 5000;
+      else if (planType === accountType.individual) amount = 11000;
+      else if (planType === accountType.company) amount = 17000;
+      else
+        throw new BadRequestException(
+          'Invalid plan type provided for subscription',
+        );
+      user.accountType = planType;
+      await user.save();
+    }
+
     const reference = `TX-${Date.now()}`;
     const totalAmount =
       paymentType === 'card' ? numberOfCards * amount : amount;
