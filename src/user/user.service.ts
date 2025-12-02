@@ -354,6 +354,7 @@ export class UserService {
         bio: user.bio,
         calendifyLink: user.calendifyLink,
         customLink: user.customLink,
+        expiryDate: user.expiryDate,
       };
     } catch (error) {
       throw new HttpException(

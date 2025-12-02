@@ -86,6 +86,8 @@ export class TapsService {
         bio: user.bio,
         calendifyLink: user.calendifyLink,
         customLink: user.customLink,
+        expiryDate: user.expiryDate,
+        isSubscribe: user.isSubscribe,
       };
     } catch (error) {
       throw new HttpException(
