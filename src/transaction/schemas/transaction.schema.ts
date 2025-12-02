@@ -34,6 +34,9 @@ export class Transaction extends Document {
 
   @Prop({ default: 'paystack' })
   paymentMethod: string;
+
+  @Prop({ required: false, default: null })
+  expiryDate: Date;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

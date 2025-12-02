@@ -122,12 +122,19 @@ export class PaymentService {
       let user = await this.userModel.findOne({ _id: transaction.userId });
 
       if (transaction.paymentType === 'subscription') {
+        const monthsToAdd = transaction.duration ?? 1;
+        const expiry = new Date();
+        expiry.setMonth(expiry.getMonth() + monthsToAdd);
+
+        transaction.expiryDate = expiry;
+
         await this.userModel.findOneAndUpdate(
           {
             _id: new mongoose.Types.ObjectId(transaction.userId),
           },
-          { isSubscribe: true },
+          { isSubscribe: true, expiryDate: expiry },
         );
+        await transaction.save();
       }
       try {
         await this.notificationService.create({
