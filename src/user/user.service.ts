@@ -177,6 +177,7 @@ export class UserService {
         phone: user.phone,
         isSubscribe: user.isSubscribe,
         accountType: user.accountType,
+        expiryDate: user.expiryDate,
       };
     } catch (error) {
       throw new HttpException(
