@@ -132,7 +132,7 @@ export class PaymentService {
           {
             _id: new mongoose.Types.ObjectId(transaction.userId),
           },
-          { isSubscribe: true, expiryDate: expiry },
+          { isSubscribe: true, expiryDate: expiry, hasSubscribed: true },
         );
         await transaction.save();
       }

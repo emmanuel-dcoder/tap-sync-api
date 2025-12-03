@@ -100,6 +100,9 @@ export class User {
   @Prop({ required: true, default: false })
   isSubscribe: boolean;
 
+  @Prop({ required: true, default: false })
+  hasSubscribed: boolean;
+
   @Prop({ required: false, default: null })
   expiryDate: Date;
 
