@@ -34,7 +34,7 @@ export class CreatePaymentDto {
     example: accountType.basic,
   })
   @IsOptional()
-  @IsNumber()
+  @IsString()
   planType?: string;
 
   @ApiProperty({
