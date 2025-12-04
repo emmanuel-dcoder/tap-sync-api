@@ -178,6 +178,7 @@ export class UserService {
         isSubscribe: user.isSubscribe,
         accountType: user.accountType,
         expiryDate: user.expiryDate,
+        hasSubscribed: user.hasSubscribed,
       };
     } catch (error) {
       throw new HttpException(
@@ -356,6 +357,7 @@ export class UserService {
         calendifyLink: user.calendifyLink,
         customLink: user.customLink,
         expiryDate: user.expiryDate,
+        hasSubscribed: user.hasSubscribed,
       };
     } catch (error) {
       throw new HttpException(

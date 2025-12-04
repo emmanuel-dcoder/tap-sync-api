@@ -88,6 +88,7 @@ export class TapsService {
         customLink: user.customLink,
         expiryDate: user.expiryDate,
         isSubscribe: user.isSubscribe,
+        hasSubscribed: user.hasSubscribed,
       };
     } catch (error) {
       throw new HttpException(
