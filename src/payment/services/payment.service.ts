@@ -68,7 +68,7 @@ export class PaymentService {
 
     const reference = `TX-${Date.now()}`;
     const totalAmount =
-      paymentType === 'card' ? numberOfCards * amount : amount;
+      paymentType === 'card' ? amount * numberOfCards : amount * duration;
     try {
       const response = await axios.post(
         `${envConfig.paystack.url}/transaction/initialize`,
