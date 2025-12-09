@@ -43,6 +43,5 @@ export class CreatePaymentDto {
     example: cardType.metal,
   })
   @IsOptional()
-  @IsNumber()
   cardType?: string;
 }
